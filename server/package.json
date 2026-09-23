@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "node test_runner.js"
+    "test": "node test_runner.js",
+    "seed": "node src/config/seed.js"
   },
   "keywords": [
     "servicedesk",

@@ -2,6 +2,7 @@ import "dotenv/config";
 import mongoose from "mongoose";
 import app from "./src/app.js";
 import connectDB from "./src/config/db.js";
+import { startSlaEscalationJob, stopSlaEscalationJob } from "./src/jobs/slaEscalationJob.js";
 
 const PORT = process.env.PORT || 5000;
 
@@ -16,6 +17,9 @@ const startServer = async () => {
       console.log(`📍 Environment: ${process.env.NODE_ENV || "development"}`);
       console.log(`📡 Health Check: http://localhost:${PORT}/api/health`);
     });
+
+    // Start background SLA monitoring job (checks every 60 seconds)
+    startSlaEscalationJob(60000);
   } catch (error) {
     console.error("Failed to start server:", error.message);
     process.exit(1);
@@ -24,6 +28,8 @@ const startServer = async () => {
 
 const handleGracefulShutdown = (signal) => {
   console.log(`\nReceived ${signal}. Shutting down gracefully...`);
+  stopSlaEscalationJob();
+
   if (server) {
     server.close(async () => {
       console.log("HTTP server closed.");

@@ -10,6 +10,7 @@ ServiceDesk Pro is a modern, enterprise-ready IT Service Management (ITSM) and A
 - **Database**: MongoDB with Mongoose ODM
 - **Authentication**: JWT (Access Tokens + Refresh Tokens) with bcryptjs password hashing
 - **Authorization**: Role-Based Access Control (RBAC) & Department scoping
+- **Lifecycle Engine**: Strict state machine validation & SLA policy deadline monitoring
 - **Frontend**: React 19, Vite 8
 
 ---
@@ -24,15 +25,15 @@ servicedesk-pro/
 │   └── vite.config.js
 ├── server/                     # Backend (Node.js ESM + Express)
 │   ├── src/
-│   │   ├── config/             # DB & environmental configuration
+│   │   ├── config/             # DB & seed configuration
 │   │   ├── controllers/        # Request handling and response dispatch
+│   │   ├── jobs/               # Background task definitions (SLA escalation monitor)
 │   │   ├── middleware/         # Auth, RBAC, error & 404 middleware
-│   │   ├── models/             # Mongoose schemas & data models (User, Department, ...)
+│   │   ├── models/             # Mongoose schemas (User, Department, Ticket, SlaPolicy, etc.)
 │   │   ├── routes/             # RESTful API route definitions
-│   │   ├── services/           # Reusable business logic
-│   │   ├── utils/              # Tokens, errors, responses
-│   │   ├── validators/         # Input validation middleware
-│   │   └── jobs/               # Background task definitions (escalations, SLA)
+│   │   ├── services/           # Business logic (Ticket, SLA, Audit, Notifications)
+│   │   ├── utils/              # Tokens, constants, errors, responses
+│   │   └── validators/         # Input validation middleware
 │   ├── server.js               # Server entry point
 │   ├── package.json
 │   ├── .env.example            # Environment variable template
@@ -61,7 +62,11 @@ servicedesk-pro/
      copy .env.example .env
      ```
    - Customize `PORT`, `MONGODB_URI`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, and `CLIENT_URL` if needed.
-3. Start the backend:
+3. Seed the database with demo departments, SLA policies, and role-based test users:
+   ```bash
+   npm run seed
+   ```
+4. Start the backend:
    ```bash
    # Development mode (with live watch)
    npm run dev
@@ -69,53 +74,99 @@ servicedesk-pro/
    # Or standard production start
    npm start
    ```
-4. Verify backend health:
-   - Visit: `http://localhost:5000/api/health`
 
 ### 3. Run Automated Tests
-Run the comprehensive end-to-end API verification suite:
+Execute the end-to-end test suite (authenticates test roles, tests lifecycle transitions, SLA deadline calculations, audit logging, comments, and work logs):
 ```bash
 cd server
 npm test
 ```
 
-### 4. Frontend Setup
-1. Open a separate terminal in the `client` directory:
-   ```bash
-   cd client
-   npm install
-   ```
-2. Start the Vite development server:
-   ```bash
-   npm run dev
-   ```
-3. Open `http://localhost:5173` in your browser.
+---
+
+## 👥 Demo Seed Credentials
+
+| Role | Email | Password |
+|---|---|---|
+| **System Admin** | `admin@servicedesk.local` | `Password@123` |
+| **IT Manager** | `manager@servicedesk.local` | `Password@123` |
+| **Technician** | `tech1@servicedesk.local` | `Password@123` |
+| **Employee** | `employee1@servicedesk.local` | `Password@123` |
 
 ---
 
-## 📡 API Endpoints Overview
+## 🔄 Ticket Lifecycle State Machine
 
+```text
+    ┌────────┐
+    │  OPEN  │ ──(Assign)──> ┌──────────┐
+    └────────┘               │ ASSIGNED │ ──(Start)──> ┌─────────────┐
+                             └──────────┘              │ IN_PROGRESS │
+                                                       └─────────────┘
+                                                              │
+                                                          (Resolve)
+                                                              ▼
+    ┌────────┐               ┌──────────┐              ┌─────────────┐
+    │ CLOSED │ <───(Close)── │ REOPENED │ <──(Reopen)─ │  RESOLVED   │
+    └────────┘               └──────────┘              └─────────────┘
+                                  │
+                               (Start)
+                                  ▼
+                           ┌─────────────┐
+                           │ IN_PROGRESS │
+                           └─────────────┘
+```
+
+Invalid transitions (e.g. attempting to resolve an unassigned `OPEN` ticket, or modifying status via generic PATCH) are rejected with HTTP 400.
+
+---
+
+## 📡 API Endpoints Catalog
+
+### Health & Auth
 | Method | Endpoint | Description | Access |
 |---|---|---|---|
 | `GET` | `/api/health` | Service & database connectivity check | Public |
-| `POST` | `/api/auth/register` | Register new employee account | Public |
+| `POST` | `/api/auth/register` | Register employee account | Public |
 | `POST` | `/api/auth/login` | Authenticate with email/password | Public |
-| `POST` | `/api/auth/refresh` | Rotate and issue new access token | Public |
-| `GET` | `/api/auth/me` | Fetch authenticated user profile | Protected (All roles) |
-| `POST` | `/api/auth/logout` | Revoke session refresh token | Protected (All roles) |
-| `GET` | `/api/departments` | List active departments | Public / Authenticated |
-| `GET` | `/api/departments/:id` | Get department details | Public / Authenticated |
-| `POST` | `/api/departments` | Create new department | `system_admin`, `it_manager` |
-| `PATCH` | `/api/departments/:id` | Update department details | `system_admin`, `it_manager` |
-| `GET` | `/api/users` | List users with pagination and search | `system_admin`, `it_manager`, `technician` |
-| `GET` | `/api/users/:id` | Get user by ID | Protected |
-| `PATCH` | `/api/users/:id` | Update user details (role guarded) | Protected |
+| `POST` | `/api/auth/refresh` | Rotate access token | Public |
+| `GET` | `/api/auth/me` | Fetch active user profile | Authenticated |
+| `POST` | `/api/auth/logout` | Revoke session refresh token | Authenticated |
 
----
+### Tickets & Workflow
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `POST` | `/api/tickets` | Create ticket (auto-calculates SLA deadlines) | Authenticated |
+| `GET` | `/api/tickets` | List tickets (scoped by role with search/filter/pagination) | Authenticated |
+| `GET` | `/api/tickets/:id` | Get ticket details | Scoped |
+| `PATCH` | `/api/tickets/:id` | Update ticket metadata (title, category, priority) | Authorized |
+| `POST` | `/api/tickets/:id/assign` | Assign technician to ticket (`OPEN` $\rightarrow$ `ASSIGNED`) | `system_admin`, `it_manager` |
+| `POST` | `/api/tickets/:id/start` | Start ticket work (`ASSIGNED` $\rightarrow$ `IN_PROGRESS`) | Assigned Technician, Managers |
+| `POST` | `/api/tickets/:id/resolve` | Mark ticket resolved with notes (`IN_PROGRESS` $\rightarrow$ `RESOLVED`) | Assigned Technician, Managers |
+| `POST` | `/api/tickets/:id/reopen` | Reopen resolved ticket (`RESOLVED` $\rightarrow$ `REOPENED`) | Requester, Managers |
+| `POST` | `/api/tickets/:id/close` | Confirm closure of resolved ticket (`RESOLVED` $\rightarrow$ `CLOSED`) | Requester, Managers |
+| `GET` | `/api/tickets/:id/audit` | View immutable audit trail history for ticket | Scoped |
 
-## 🛡️ Security Features
-- Passwords hashed with `bcryptjs` (salt rounds: 10).
-- Dual-token authentication: short-lived access tokens (`15m`) + refresh tokens (`7d`).
-- Cross-Origin Resource Sharing (CORS) restricted to configured `CLIENT_URL`.
-- Role-based authorization guardrails (public users cannot self-assign privileged roles).
-- Centralized error handler preventing stack trace leaks in production.
+### Ticket Comments & Work Logs
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `GET` | `/api/tickets/:id/comments` | List comments (internal notes hidden from employee) | Scoped |
+| `POST` | `/api/tickets/:id/comments` | Post comment (employees or support staff) | Scoped |
+| `GET` | `/api/tickets/:id/worklogs` | View technician work time records | Technicians, Managers |
+| `POST` | `/api/tickets/:id/worklogs` | Log effort time in minutes | Technicians, Managers |
+
+### SLA Policies
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `GET` | `/api/sla` | List configured SLA targets | Authenticated |
+| `GET` | `/api/sla/:id` | Get specific SLA policy | Authenticated |
+| `POST` | `/api/sla` | Create new SLA policy | `system_admin`, `it_manager` |
+| `PATCH` | `/api/sla/:id` | Update SLA response/resolution targets | `system_admin`, `it_manager` |
+| `DELETE` | `/api/sla/:id` | Delete SLA policy | `system_admin`, `it_manager` |
+
+### Notifications
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `GET` | `/api/notifications` | View in-app user notifications (with unread count) | Authenticated |
+| `PATCH` | `/api/notifications/:id/read` | Mark notification as read | Authenticated |
+| `PATCH` | `/api/notifications/read-all` | Mark all notifications as read | Authenticated |
