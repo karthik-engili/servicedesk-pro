@@ -21,3 +21,6 @@ yarn-debug.log*
 Thumbs.db
 .vscode/
 .idea/
+
+
+test_runner.js
