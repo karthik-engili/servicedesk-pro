@@ -12,7 +12,10 @@ import Dashboard from './pages/dashboard/Dashboard'
 import TicketsPage from './pages/tickets/TicketsPage'
 import TicketDetailPage from './pages/tickets/TicketDetailPage'
 import AssetsPage from './pages/assets/AssetsPage'
+import AssetDetailPage from './pages/assets/AssetDetailPage'
 import KnowledgePage from './pages/knowledge/KnowledgePage'
+import ArticleDetailPage from './pages/knowledge/ArticleDetailPage'
+import BookmarksPage from './pages/knowledge/BookmarksPage'
 import NotificationsPage from './pages/notifications/NotificationsPage'
 import ProfilePage from './pages/profile/ProfilePage'
 import HealthCheckPage from './pages/health/HealthCheckPage'
@@ -36,7 +39,10 @@ export function App() {
                 <Route path="/tickets" element={<TicketsPage />} />
                 <Route path="/tickets/:id" element={<TicketDetailPage />} />
                 <Route path="/assets" element={<AssetsPage />} />
+                <Route path="/assets/:id" element={<AssetDetailPage />} />
                 <Route path="/knowledge" element={<KnowledgePage />} />
+                <Route path="/knowledge/bookmarks" element={<BookmarksPage />} />
+                <Route path="/knowledge/:id" element={<ArticleDetailPage />} />
                 <Route path="/notifications" element={<NotificationsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/health-check" element={<HealthCheckPage />} />

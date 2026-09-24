@@ -15,6 +15,7 @@ import { useToast } from '../../contexts/ToastContext'
 import { handleApiError } from '../../utils/errorHandler'
 import { CATEGORY_LABELS } from '../../constants/tickets'
 import { ROLES, hasAnyRole } from '../../constants/roles'
+import { RecommendedArticles } from '../../components/knowledge'
 
 export function TicketDetailPage() {
   const { id } = useParams()
@@ -424,6 +425,9 @@ export function TicketDetailPage() {
               )}
             </div>
           </div>
+
+          {/* Ticket Knowledge Recommendations */}
+          <RecommendedArticles ticketId={ticket._id} />
         </div>
       </div>
     </PageContainer>
