@@ -1,6 +1,7 @@
 import Ticket from "../models/Ticket.js";
 import User from "../models/User.js";
 import Department from "../models/Department.js";
+import Asset from "../models/Asset.js";
 import AppError from "../utils/appError.js";
 import { isValidTransition } from "../utils/constants.js";
 import slaService from "./slaService.js";
@@ -31,6 +32,13 @@ class TicketService {
       const deptExists = await Department.findById(targetDepartment);
       if (!deptExists) {
         throw new AppError("Specified department does not exist.", 400);
+      }
+    }
+
+    if (asset) {
+      const assetExists = await Asset.findById(asset);
+      if (!assetExists) {
+        throw new AppError("Referenced asset not found.", 404);
       }
     }
 
@@ -81,7 +89,8 @@ class TicketService {
       .populate("createdBy", "name email role")
       .populate("assignedTo", "name email role")
       .populate("department", "name status")
-      .populate("slaPolicy");
+      .populate("slaPolicy")
+      .populate("asset", "assetTag name category status serialNumber");
   }
 
   async listTickets(queryFilters = {}, requestingUser) {
@@ -89,6 +98,7 @@ class TicketService {
       status,
       priority,
       category,
+      asset: assetFilter,
       assignedTo,
       createdBy,
       department,
@@ -128,6 +138,7 @@ class TicketService {
     if (status) query.status = status;
     if (priority) query.priority = priority;
     if (category) query.category = category;
+    if (assetFilter) query.asset = assetFilter;
     if (slaStatus) query.slaStatus = slaStatus;
     if (createdBy && requestingUser.role !== "employee") query.createdBy = createdBy;
     if (assignedTo && requestingUser.role !== "employee") query.assignedTo = assignedTo;
@@ -149,6 +160,7 @@ class TicketService {
         .populate("assignedTo", "name email role")
         .populate("department", "name status")
         .populate("slaPolicy")
+        .populate("asset", "assetTag name category status serialNumber")
         .sort(sortObj)
         .skip(skip)
         .limit(limitNum),
@@ -171,7 +183,8 @@ class TicketService {
       .populate("createdBy", "name email role")
       .populate("assignedTo", "name email role")
       .populate("department", "name status")
-      .populate("slaPolicy");
+      .populate("slaPolicy")
+      .populate("asset", "assetTag name category status serialNumber");
 
     if (!ticket) {
       throw new AppError("Ticket not found.", 404);
@@ -225,7 +238,17 @@ class TicketService {
     if (updates.description !== undefined) ticket.description = updates.description.trim();
     if (updates.category !== undefined) ticket.category = updates.category;
     if (updates.department !== undefined) ticket.department = updates.department || null;
-    if (updates.asset !== undefined) ticket.asset = updates.asset || null;
+    if (updates.asset !== undefined) {
+      if (updates.asset) {
+        const assetExists = await Asset.findById(updates.asset);
+        if (!assetExists) {
+          throw new AppError("Referenced asset not found.", 404);
+        }
+        ticket.asset = updates.asset;
+      } else {
+        ticket.asset = null;
+      }
+    }
 
     // Priority modification with SLA recalculation
     if (updates.priority && updates.priority !== ticket.priority) {
@@ -260,7 +283,8 @@ class TicketService {
       .populate("createdBy", "name email role")
       .populate("assignedTo", "name email role")
       .populate("department", "name status")
-      .populate("slaPolicy");
+      .populate("slaPolicy")
+      .populate("asset", "assetTag name category status serialNumber");
   }
 
   // --- Explicit Workflow State Machine Actions ---
