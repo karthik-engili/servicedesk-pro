@@ -35,8 +35,15 @@ export function TicketsPage() {
       priority: searchParams.get('priority') || '',
       category: searchParams.get('category') || '',
       department: searchParams.get('department') || '',
+      slaStatus: searchParams.get('slaStatus') || '',
       page: parseInt(searchParams.get('page'), 10) || 1,
       limit: parseInt(searchParams.get('limit'), 10) || 15,
+    }
+  }, [searchParams])
+
+  useEffect(() => {
+    if (searchParams.get('create') === 'true') {
+      setCreateModalOpen(true)
     }
   }, [searchParams])
 
@@ -69,6 +76,7 @@ export function TicketsPage() {
       if (currentFilters.priority) query.priority = currentFilters.priority
       if (currentFilters.category) query.category = currentFilters.category
       if (currentFilters.department) query.department = currentFilters.department
+      if (currentFilters.slaStatus) query.slaStatus = currentFilters.slaStatus
 
       const res = await ticketService.getTickets(query)
       const ticketList = res.tickets || []

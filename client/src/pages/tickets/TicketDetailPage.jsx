@@ -16,6 +16,7 @@ import { handleApiError } from '../../utils/errorHandler'
 import { CATEGORY_LABELS } from '../../constants/tickets'
 import { ROLES, hasAnyRole } from '../../constants/roles'
 import { RecommendedArticles } from '../../components/knowledge'
+import { AiTicketCopilot } from '../../components/ai'
 
 export function TicketDetailPage() {
   const { id } = useParams()
@@ -328,6 +329,12 @@ export function TicketDetailPage() {
               onTicketUpdated={handleTicketUpdated}
             />
           </div>
+
+          {/* AI Ticket Intelligence Copilot */}
+          <AiTicketCopilot
+            ticket={ticket}
+            onTicketUpdated={handleTicketUpdated}
+          />
 
           {/* SLA Tracking Card */}
           <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs space-y-4">
