@@ -1,26 +1,24 @@
 import React, { useId } from 'react'
 
-export function Select({
+export function Textarea({
   label,
   error,
   helperText,
   id: customId,
-  options = [],
-  placeholder = 'Select an option',
+  rows = 3,
   required = false,
   disabled = false,
   className = '',
-  children,
   ...props
 }) {
   const generatedId = useId()
-  const selectId = customId || generatedId
+  const inputId = customId || generatedId
 
   return (
     <div className="w-full">
       {label && (
         <label
-          htmlFor={selectId}
+          htmlFor={inputId}
           className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5"
         >
           {label}
@@ -29,12 +27,12 @@ export function Select({
       )}
 
       <div className="relative rounded-lg shadow-3xs">
-        <select
-          id={selectId}
+        <textarea
+          id={inputId}
+          rows={rows}
           disabled={disabled}
           required={required}
-          className={`block w-full rounded-lg text-sm transition-all duration-150 bg-white dark:bg-slate-900 appearance-none
-            pl-3.5 pr-10 py-2
+          className={`block w-full rounded-lg text-sm transition-all duration-150 placeholder:text-slate-400 dark:placeholder:text-slate-500 bg-white dark:bg-slate-900 px-3.5 py-2
             ${
               error
                 ? 'border-rose-400 dark:border-rose-600 text-rose-900 dark:text-rose-100 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20'
@@ -44,27 +42,7 @@ export function Select({
             disabled:bg-slate-50 dark:disabled:bg-slate-800/60 disabled:text-slate-500 dark:disabled:text-slate-500 disabled:border-slate-200 dark:disabled:border-slate-800 disabled:cursor-not-allowed
             ${className}`}
           {...props}
-        >
-          {placeholder && <option value="">{placeholder}</option>}
-          {options.length > 0
-            ? options.map((opt) => {
-                const value = typeof opt === 'object' ? opt.value : opt
-                const optLabel = typeof opt === 'object' ? opt.label : opt
-                return (
-                  <option key={value} value={value}>
-                    {optLabel}
-                  </option>
-                )
-              })
-            : children}
-        </select>
-
-        {/* Dropdown Chevron */}
-        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400 dark:text-slate-500">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
+        />
       </div>
 
       {error ? (
@@ -76,4 +54,4 @@ export function Select({
   )
 }
 
-export default Select
+export default Textarea

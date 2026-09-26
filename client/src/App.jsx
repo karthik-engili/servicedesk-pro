@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { ThemeProvider } from './contexts/ThemeContext'
 import { AuthProvider } from './contexts/AuthContext'
 import { ToastProvider } from './contexts/ToastContext'
 import { NotificationProvider } from './contexts/NotificationContext'
@@ -33,42 +34,44 @@ function PageLoadingFallback() {
 
 export function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <ToastProvider>
-          <NotificationProvider>
-            <Suspense fallback={<PageLoadingFallback />}>
-              <Routes>
-                {/* Public Authentication Routes */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+    <ThemeProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <ToastProvider>
+            <NotificationProvider>
+              <Suspense fallback={<PageLoadingFallback />}>
+                <Routes>
+                  {/* Public Authentication Routes */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
 
-                {/* Protected Application Routes */}
-                <Route element={<ProtectedRoute />}>
-                  <Route element={<AppLayout />}>
-                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/tickets" element={<TicketsPage />} />
-                    <Route path="/tickets/:id" element={<TicketDetailPage />} />
-                    <Route path="/assets" element={<AssetsPage />} />
-                    <Route path="/assets/:id" element={<AssetDetailPage />} />
-                    <Route path="/knowledge" element={<KnowledgePage />} />
-                    <Route path="/knowledge/bookmarks" element={<BookmarksPage />} />
-                    <Route path="/knowledge/:id" element={<ArticleDetailPage />} />
-                    <Route path="/notifications" element={<NotificationsPage />} />
-                    <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="/health-check" element={<HealthCheckPage />} />
+                  {/* Protected Application Routes */}
+                  <Route element={<ProtectedRoute />}>
+                    <Route element={<AppLayout />}>
+                      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/tickets" element={<TicketsPage />} />
+                      <Route path="/tickets/:id" element={<TicketDetailPage />} />
+                      <Route path="/assets" element={<AssetsPage />} />
+                      <Route path="/assets/:id" element={<AssetDetailPage />} />
+                      <Route path="/knowledge" element={<KnowledgePage />} />
+                      <Route path="/knowledge/bookmarks" element={<BookmarksPage />} />
+                      <Route path="/knowledge/:id" element={<ArticleDetailPage />} />
+                      <Route path="/notifications" element={<NotificationsPage />} />
+                      <Route path="/profile" element={<ProfilePage />} />
+                      <Route path="/health-check" element={<HealthCheckPage />} />
+                    </Route>
                   </Route>
-                </Route>
 
-                {/* 404 Catch-All */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </NotificationProvider>
-        </ToastProvider>
-      </AuthProvider>
-    </BrowserRouter>
+                  {/* 404 Catch-All */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </NotificationProvider>
+          </ToastProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }
 
