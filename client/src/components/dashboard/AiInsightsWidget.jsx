@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import Card from '../ui/Card'
 import Badge from '../ui/Badge'
 import EmptyState from '../ui/EmptyState'
 
@@ -7,7 +8,7 @@ export function AiInsightsWidget({
   tickets = [],
   className = '',
 }) {
-  // Find tickets with existing AI analysis recommendations
+  // Extract real tickets with AI risk detection or escalation recommendations
   const aiTickets = tickets.filter(
     (t) =>
       t.aiAnalysis &&
@@ -18,39 +19,40 @@ export function AiInsightsWidget({
       t.status !== 'CLOSED'
   )
 
-  return (
-    <div
-      className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-3xs flex flex-col justify-between ${className}`}
-    >
-      <div>
-        <div className="flex items-center justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-purple-50 dark:bg-purple-950/60 flex items-center justify-center text-purple-600 dark:text-purple-400">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-              AI Copilot Escalations
-            </h3>
-            {aiTickets.length > 0 && (
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950/80 dark:text-purple-300">
-                {aiTickets.length} flagged
-              </span>
-            )}
-          </div>
-          <span className="text-[10px] text-slate-400 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
-            Passive Insights
-          </span>
-        </div>
+  const criticalRiskCount = aiTickets.filter(
+    (t) => t.aiAnalysis?.riskLevel === 'CRITICAL'
+  ).length
 
+  return (
+    <Card variant="bordered" className={`flex flex-col justify-between overflow-hidden ${className}`}>
+      {/* Header */}
+      <div className="px-4 sm:px-5 py-3 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-800/20">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-indigo-500" />
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+            AI Operational Insights
+          </h2>
+          {aiTickets.length > 0 && (
+            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 font-mono">
+              {aiTickets.length} flagged
+            </span>
+          )}
+        </div>
+        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+          {criticalRiskCount > 0 ? `${criticalRiskCount} Critical Risk` : 'Heuristic & LLM Guard'}
+        </span>
+      </div>
+
+      {/* Content */}
+      <div className="p-0">
         {aiTickets.length === 0 ? (
-          <EmptyState
-            title="No AI escalations"
-            description="The AI Copilot has not detected critical risk or escalation requirements in active tickets."
-            className="py-6"
-          />
+          <div className="p-6">
+            <EmptyState
+              title="No critical AI risks detected"
+              description="The AI Ticket Copilot has evaluated active incidents and found no urgent escalation triggers."
+              className="py-6"
+            />
+          </div>
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
             {aiTickets.slice(0, 4).map((t) => {
@@ -62,28 +64,23 @@ export function AiInsightsWidget({
                 <Link
                   key={t._id}
                   to={`/tickets/${t._id}`}
-                  className="py-3 first:pt-0 last:pb-0 flex items-start gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 -mx-2 px-2 rounded-xl transition-colors no-underline group"
+                  className="px-4 sm:px-5 py-2.5 flex items-start gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors no-underline group"
                 >
-                  <div className="w-7 h-7 rounded-lg bg-purple-50 dark:bg-purple-950/40 border border-purple-200/60 dark:border-purple-800/50 flex items-center justify-center shrink-0 mt-0.5">
-                    <svg className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
-                  </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                      <span className="font-mono text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                         {t.ticketNumber}
                       </span>
                       <Badge variant={riskVariant} size="xs">
                         Risk: {risk}
                       </Badge>
                       {t.aiAnalysis?.escalationRecommended && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 dark:bg-purple-950/80 dark:text-purple-300">
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60">
                           Escalation Recommended
                         </span>
                       )}
                     </div>
-                    <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                    <p className="text-xs font-medium text-slate-900 dark:text-slate-100 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                       {t.title}
                     </p>
                     {t.aiAnalysis?.escalationReason && (
@@ -92,7 +89,12 @@ export function AiInsightsWidget({
                       </p>
                     )}
                   </div>
-                  <svg className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-transform group-hover:translate-x-0.5 shrink-0 self-center" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-3.5 h-3.5 text-slate-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 group-hover:translate-x-0.5 transition-all shrink-0 self-center"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
@@ -101,7 +103,7 @@ export function AiInsightsWidget({
           </div>
         )}
       </div>
-    </div>
+    </Card>
   )
 }
 

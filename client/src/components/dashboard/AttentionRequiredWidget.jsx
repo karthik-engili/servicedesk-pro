@@ -1,7 +1,9 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import Card from '../ui/Card'
 import Badge from '../ui/Badge'
 import EmptyState from '../ui/EmptyState'
+import { PRIORITY_BADGE_VARIANTS } from '../../constants/tickets'
 
 export function AttentionRequiredWidget({
   tickets = [],
@@ -11,196 +13,231 @@ export function AttentionRequiredWidget({
 }) {
   const items = []
 
-  // Breached SLA tickets
+  // 1. Breached SLA Tickets (Highest urgency)
   const breachedTickets = tickets.filter(
     (t) => t.slaStatus === 'BREACHED' && t.status !== 'RESOLVED' && t.status !== 'CLOSED'
   )
   breachedTickets.slice(0, 3).forEach((t) => {
     items.push({
       id: `breach-${t._id}`,
-      type: 'SLA_BREACH',
-      title: `SLA Breached: ${t.ticketNumber}`,
-      subtitle: t.title,
-      badgeText: 'BREACHED',
+      ticketId: t._id,
+      ticketNumber: t.ticketNumber,
+      title: t.title,
+      priority: t.priority,
+      slaStatus: 'BREACHED',
+      badgeText: 'SLA BREACHED',
       badgeVariant: 'danger',
+      assignee: t.assignedTo?.name || 'Unassigned',
       to: `/tickets/${t._id}`,
-      icon: (
-        <svg className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
+      type: 'TICKET',
     })
   })
 
-  // Approaching SLA tickets
+  // 2. Approaching SLA Tickets (High urgency)
   const approachingTickets = tickets.filter(
     (t) => t.slaStatus === 'APPROACHING' && t.status !== 'RESOLVED' && t.status !== 'CLOSED'
   )
-  approachingTickets.slice(0, 2).forEach((t) => {
+  approachingTickets.slice(0, 3).forEach((t) => {
+    if (!items.some((i) => i.ticketId === t._id)) {
+      items.push({
+        id: `approach-${t._id}`,
+        ticketId: t._id,
+        ticketNumber: t.ticketNumber,
+        title: t.title,
+        priority: t.priority,
+        slaStatus: 'APPROACHING',
+        badgeText: 'SLA RISK',
+        badgeVariant: 'warning',
+        assignee: t.assignedTo?.name || 'Unassigned',
+        to: `/tickets/${t._id}`,
+        type: 'TICKET',
+      })
+    }
+  })
+
+  // 3. Unassigned Critical or High Tickets
+  const unassignedTickets = tickets.filter(
+    (t) =>
+      !t.assignedTo &&
+      (t.priority === 'CRITICAL' || t.priority === 'HIGH') &&
+      t.status !== 'RESOLVED' &&
+      t.status !== 'CLOSED' &&
+      !items.some((i) => i.ticketId === t._id)
+  )
+  unassignedTickets.slice(0, 2).forEach((t) => {
     items.push({
-      id: `approach-${t._id}`,
-      type: 'SLA_APPROACHING',
-      title: `SLA Approaching: ${t.ticketNumber}`,
-      subtitle: t.title,
-      badgeText: 'APPROACHING',
+      id: `unassigned-${t._id}`,
+      ticketId: t._id,
+      ticketNumber: t.ticketNumber,
+      title: t.title,
+      priority: t.priority,
+      badgeText: 'UNASSIGNED',
       badgeVariant: 'warning',
+      assignee: 'Needs Assignment',
       to: `/tickets/${t._id}`,
-      icon: (
-        <svg className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
+      type: 'TICKET',
     })
   })
 
-  // Critical Priority Tickets not yet handled
+  // 4. Critical Priority Tickets not yet included
   const criticalTickets = tickets.filter(
     (t) =>
       t.priority === 'CRITICAL' &&
       t.status !== 'RESOLVED' &&
       t.status !== 'CLOSED' &&
-      !items.some((i) => i.to === `/tickets/${t._id}`)
+      !items.some((i) => i.ticketId === t._id)
   )
   criticalTickets.slice(0, 2).forEach((t) => {
     items.push({
       id: `critical-${t._id}`,
-      type: 'CRITICAL_TICKET',
-      title: `Critical Incident: ${t.ticketNumber}`,
-      subtitle: t.title,
-      badgeText: 'CRITICAL',
+      ticketId: t._id,
+      ticketNumber: t.ticketNumber,
+      title: t.title,
+      priority: t.priority,
+      badgeText: 'P1 CRITICAL',
       badgeVariant: 'danger',
+      assignee: t.assignedTo?.name || 'Unassigned',
       to: `/tickets/${t._id}`,
-      icon: (
-        <svg className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-      ),
+      type: 'TICKET',
     })
   })
 
-  // AI Escalation recommendations (only if present in dataset)
+  // 5. AI Escalation Recommendations
   const aiEscalations = tickets.filter(
     (t) =>
       t.aiAnalysis?.escalationRecommended &&
       t.status !== 'RESOLVED' &&
       t.status !== 'CLOSED' &&
-      !items.some((i) => i.to === `/tickets/${t._id}`)
+      !items.some((i) => i.ticketId === t._id)
   )
   aiEscalations.slice(0, 2).forEach((t) => {
     items.push({
       id: `ai-${t._id}`,
-      type: 'AI_ESCALATION',
-      title: `AI Escalation: ${t.ticketNumber}`,
-      subtitle: t.aiAnalysis?.escalationReason || t.title,
+      ticketId: t._id,
+      ticketNumber: t.ticketNumber,
+      title: t.aiAnalysis?.escalationReason || t.title,
+      priority: t.priority,
       badgeText: 'AI ESCALATE',
       badgeVariant: 'purple',
+      assignee: t.assignedTo?.name || 'Unassigned',
       to: `/tickets/${t._id}`,
-      icon: (
-        <svg className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-        </svg>
-      ),
+      type: 'TICKET',
     })
   })
 
-  // Lost Assets Alert
+  // 6. Lost Assets Alert
   if (lostAssetsCount > 0) {
     items.push({
       id: 'lost-assets',
-      type: 'LOST_ASSETS',
-      title: 'Lost Equipment Reported',
-      subtitle: `${lostAssetsCount} asset${lostAssetsCount > 1 ? 's' : ''} currently marked LOST in inventory`,
-      badgeText: 'ASSET ALERT',
+      ticketNumber: 'CMDB',
+      title: `${lostAssetsCount} asset${lostAssetsCount > 1 ? 's' : ''} currently flagged as LOST in inventory`,
+      badgeText: 'LOST ASSETS',
       badgeVariant: 'danger',
+      assignee: 'Hardware Security',
       to: '/assets?status=LOST',
-      icon: (
-        <svg className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-      ),
+      type: 'ASSET',
     })
   }
 
-  // Expiring Warranties (up to 2)
+  // 7. Expiring Warranties
   if (expiringWarranties.length > 0) {
     items.push({
       id: 'expiring-warranties',
-      type: 'WARRANTY_EXPIRING',
-      title: 'Upcoming Warranty Expirations',
-      subtitle: `${expiringWarranties.length} device${expiringWarranties.length > 1 ? 's' : ''} reach warranty end within 30 days`,
-      badgeText: 'WARRANTY',
+      ticketNumber: 'WARRANTY',
+      title: `${expiringWarranties.length} hardware device${
+        expiringWarranties.length > 1 ? 's' : ''
+      } expire within 30 days`,
+      badgeText: 'RENEWAL DUE',
       badgeVariant: 'warning',
+      assignee: 'Vendor Support',
       to: '/assets',
-      icon: (
-        <svg className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      ),
+      type: 'ASSET',
     })
   }
 
   return (
-    <div
-      className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-3xs flex flex-col justify-between ${className}`}
-    >
-      <div>
-        <div className="flex items-center justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-rose-50 dark:bg-rose-950/60 flex items-center justify-center text-rose-600 dark:text-rose-400">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-              Attention Required
-            </h3>
-            {items.length > 0 && (
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-700 dark:bg-rose-950/80 dark:text-rose-300">
-                {items.length} item{items.length > 1 ? 's' : ''}
-              </span>
-            )}
-          </div>
+    <Card variant="bordered" className={`flex flex-col justify-between overflow-hidden ${className}`}>
+      {/* Header */}
+      <div className="px-4 sm:px-5 py-3.5 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-800/20">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+            Attention Required
+          </h2>
+          {items.length > 0 && (
+            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 font-mono">
+              {items.length}
+            </span>
+          )}
         </div>
+        <span className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">
+          Immediate incident & SLA priorities
+        </span>
+      </div>
 
+      {/* Content */}
+      <div className="p-0">
         {items.length === 0 ? (
-          <EmptyState
-            title="Operational status normal"
-            description="No active SLA breaches, critical incidents, or urgent asset alerts."
-            className="py-6"
-          />
+          <div className="p-6">
+            <EmptyState
+              title="All systems normal"
+              description="No tickets currently breached, approaching SLA risk, or pending critical triage."
+              className="py-4"
+            />
+          </div>
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
-            {items.slice(0, 5).map((item) => (
-              <Link
-                key={item.id}
-                to={item.to}
-                className="py-3 first:pt-0 last:pb-0 flex items-start gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 -mx-2 px-2 rounded-xl transition-colors no-underline group"
-              >
-                <div className="w-7 h-7 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 flex items-center justify-center shrink-0 mt-0.5">
-                  {item.icon}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                    <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                      {item.title}
+            {items.slice(0, 5).map((item) => {
+              const priorityVariant = item.priority
+                ? PRIORITY_BADGE_VARIANTS[item.priority] || 'neutral'
+                : 'neutral'
+
+              return (
+                <Link
+                  key={item.id}
+                  to={item.to}
+                  className="px-4 sm:px-5 py-2.5 flex items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors no-underline group"
+                >
+                  <div className="min-w-0 flex-1 flex items-center gap-3">
+                    <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300 shrink-0 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                      {item.ticketNumber}
                     </span>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-medium text-slate-900 dark:text-slate-100 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                        {item.title}
+                      </p>
+                      <div className="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                        <span>Assignee: {item.assignee}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    {item.priority && (
+                      <Badge variant={priorityVariant} size="xs" className="hidden sm:inline-flex">
+                        {item.priority}
+                      </Badge>
+                    )}
                     <Badge variant={item.badgeVariant} size="xs">
                       {item.badgeText}
                     </Badge>
+                    <svg
+                      className="w-3.5 h-3.5 text-slate-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 group-hover:translate-x-0.5 transition-all"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                    {item.subtitle}
-                  </p>
-                </div>
-                <svg className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-transform group-hover:translate-x-0.5 shrink-0 self-center" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            ))}
+                </Link>
+              )
+            })}
           </div>
         )}
       </div>
-    </div>
+    </Card>
   )
 }
 

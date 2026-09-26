@@ -1,9 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import Card from '../ui/Card'
+import Badge from '../ui/Badge'
 
 export function SlaOverviewWidget({
   slaCounts = { WITHIN_SLA: 0, APPROACHING: 0, BREACHED: 0, MET: 0 },
-  title = 'SLA Compliance & Health',
+  title = 'SLA Health',
   isEmployee = false,
   className = '',
 }) {
@@ -22,73 +24,70 @@ export function SlaOverviewWidget({
     {
       label: 'Within SLA',
       count: WITHIN_SLA,
-      color: 'bg-emerald-500',
-      badgeClass: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
+      color: 'bg-emerald-500 dark:bg-emerald-400',
+      badgeVariant: 'success',
       to: '/tickets?slaStatus=WITHIN_SLA',
     },
     {
       label: 'Approaching',
       count: APPROACHING,
-      color: 'bg-amber-500',
-      badgeClass: 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300',
+      color: 'bg-amber-500 dark:bg-amber-400',
+      badgeVariant: 'warning',
       to: '/tickets?slaStatus=APPROACHING',
     },
     {
       label: 'Breached',
       count: BREACHED,
-      color: 'bg-rose-500',
-      badgeClass: 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300',
+      color: 'bg-rose-500 dark:bg-rose-400',
+      badgeVariant: 'danger',
       to: '/tickets?slaStatus=BREACHED',
     },
     {
       label: 'SLA Met',
       count: MET,
-      color: 'bg-blue-500',
-      badgeClass: 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300',
+      color: 'bg-blue-500 dark:bg-blue-400',
+      badgeVariant: 'info',
       to: '/tickets?slaStatus=MET',
     },
   ]
 
-  return (
-    <div
-      className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-3xs flex flex-col justify-between ${className}`}
-    >
-      <div>
-        <div className="flex items-center justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-              {title}
-            </h3>
-          </div>
-          <span
-            className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-              complianceRate >= 90
-                ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
-                : complianceRate >= 75
-                ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300'
-                : 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
-            }`}
-          >
-            {totalEvaluated > 0 ? `${complianceRate}% Compliance` : 'No Active SLAs'}
-          </span>
-        </div>
+  const healthBadgeVariant =
+    complianceRate >= 90 ? 'success' : complianceRate >= 75 ? 'warning' : 'danger'
 
-        {/* Visual Compliance Progress Bar */}
-        <div className="mb-4">
-          <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1.5">
-            <span>
-              {isEmployee ? 'My Tickets SLA Health' : 'Service Desk SLA Adherence'}
-            </span>
-            <span className="font-semibold text-slate-800 dark:text-slate-200">
-              {compliantCount} of {totalEvaluated} compliant
+  return (
+    <Card variant="bordered" className={`flex flex-col justify-between overflow-hidden ${className}`}>
+      {/* Header */}
+      <div className="px-4 sm:px-5 py-3 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-800/20">
+        <div className="flex items-center gap-2">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+            {title}
+          </h2>
+        </div>
+        <Badge variant={healthBadgeVariant} size="xs" className="font-mono">
+          {totalEvaluated > 0 ? `${complianceRate}% Compliance` : 'No Active SLAs'}
+        </Badge>
+      </div>
+
+      {/* Content */}
+      <div className="p-4 sm:p-5 space-y-4">
+        {/* Compliance Headline & Segmented Bar */}
+        <div className="p-3.5 rounded-lg border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
+          <div className="flex items-baseline justify-between mb-2">
+            <div>
+              <span className="text-2xl font-bold font-mono text-slate-900 dark:text-slate-100">
+                {complianceRate}%
+              </span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 ml-2">
+                {isEmployee ? 'My Tickets within SLA' : 'Service Desk Compliance Rate'}
+              </span>
+            </div>
+            <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
+              {compliantCount} / {totalEvaluated} compliant
             </span>
           </div>
-          <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+
+          {/* Segmented bar */}
+          <div className="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex">
             {totalEvaluated > 0 ? (
               <>
                 <div
@@ -118,13 +117,13 @@ export function SlaOverviewWidget({
           </div>
         </div>
 
-        {/* SLA Breakdown Grid */}
+        {/* 4-Item Breakdown Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {items.map((item) => (
             <Link
               key={item.label}
               to={item.to}
-              className="p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-slate-100/60 dark:hover:bg-slate-800/70 transition-colors no-underline block group"
+              className="p-2.5 rounded-md border border-slate-200/70 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-800/30 hover:bg-slate-100/60 dark:hover:bg-slate-800/60 hover:border-slate-300 dark:hover:border-slate-700 transition-colors no-underline block group"
             >
               <div className="flex items-center gap-1.5 mb-1">
                 <span className={`w-2 h-2 rounded-full ${item.color}`} />
@@ -133,11 +132,11 @@ export function SlaOverviewWidget({
                 </span>
               </div>
               <div className="flex items-baseline justify-between">
-                <span className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                <span className="text-base font-bold text-slate-900 dark:text-slate-100 font-mono group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                   {item.count}
                 </span>
                 {totalEvaluated > 0 && (
-                  <span className="text-[10px] text-slate-400">
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
                     {Math.round((item.count / totalEvaluated) * 100)}%
                   </span>
                 )}
@@ -146,7 +145,7 @@ export function SlaOverviewWidget({
           ))}
         </div>
       </div>
-    </div>
+    </Card>
   )
 }
 

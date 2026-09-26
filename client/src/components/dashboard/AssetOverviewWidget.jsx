@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import Card from '../ui/Card'
 import { CATEGORY_LABELS } from '../../constants/assets'
 
 export function AssetOverviewWidget({
@@ -13,7 +14,6 @@ export function AssetOverviewWidget({
     assigned = 0,
     underRepair = 0,
     lost = 0,
-    retired = 0,
     warrantyExpiringSoon = 0,
     assetsByCategory = [],
   } = summary
@@ -23,99 +23,92 @@ export function AssetOverviewWidget({
       label: 'Available',
       count: available,
       color: 'bg-emerald-500',
-      textColor: 'text-emerald-700 dark:text-emerald-300',
-      bgColor: 'bg-emerald-50 dark:bg-emerald-950/40',
       to: '/assets?status=AVAILABLE',
     },
     {
       label: 'Assigned',
       count: assigned,
       color: 'bg-blue-500',
-      textColor: 'text-blue-700 dark:text-blue-300',
-      bgColor: 'bg-blue-50 dark:bg-blue-950/40',
       to: '/assets?status=ASSIGNED',
     },
     {
       label: 'Under Repair',
       count: underRepair,
       color: 'bg-amber-500',
-      textColor: 'text-amber-700 dark:text-amber-300',
-      bgColor: 'bg-amber-50 dark:bg-amber-950/40',
       to: '/assets?status=UNDER_REPAIR',
     },
     {
       label: 'Lost',
       count: lost,
       color: 'bg-rose-500',
-      textColor: 'text-rose-700 dark:text-rose-300',
-      bgColor: 'bg-rose-50 dark:bg-rose-950/40',
       to: '/assets?status=LOST',
     },
   ]
 
   return (
-    <div
-      className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-3xs flex flex-col justify-between ${className}`}
-    >
-      <div>
-        <div className="flex items-center justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-              Asset & CMDB Health
-            </h3>
-          </div>
-          <Link
-            to="/assets"
-            className="text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors inline-flex items-center gap-1"
-          >
-            <span>All assets ({totalAssets})</span>
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
+    <Card variant="bordered" className={`flex flex-col justify-between overflow-hidden ${className}`}>
+      {/* Header */}
+      <div className="px-4 sm:px-5 py-3 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-800/20">
+        <div className="flex items-center gap-2">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+            Asset & CMDB Health
+          </h2>
+        </div>
+        <Link
+          to="/assets"
+          className="text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors inline-flex items-center gap-1 select-none"
+        >
+          <span>All assets ({totalAssets})</span>
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+      </div>
+
+      {/* Content */}
+      <div className="p-4 sm:p-5 space-y-4">
+        {/* Status Distribution Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {statusItems.map((item) => {
+            const pct = totalAssets > 0 ? Math.round((item.count / totalAssets) * 100) : 0
+            return (
+              <Link
+                key={item.label}
+                to={item.to}
+                className="p-2.5 rounded-md border border-slate-200/70 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-800/30 hover:bg-slate-100/60 dark:hover:bg-slate-800/60 hover:border-slate-300 dark:hover:border-slate-700 transition-colors no-underline block group"
+              >
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className={`w-2 h-2 rounded-full ${item.color}`} />
+                  <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300 truncate">
+                    {item.label}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <span className="text-base font-bold text-slate-900 dark:text-slate-100 font-mono group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                    {item.count}
+                  </span>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
+                    {pct}%
+                  </span>
+                </div>
+              </Link>
+            )
+          })}
         </div>
 
-        {/* Status Distribution Pills */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-          {statusItems.map((item) => (
-            <Link
-              key={item.label}
-              to={item.to}
-              className={`p-3 rounded-xl border border-slate-100 dark:border-slate-800/80 ${item.bgColor} hover:opacity-90 transition-opacity no-underline block`}
-            >
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className={`w-2 h-2 rounded-full ${item.color}`} />
-                <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300 truncate">
-                  {item.label}
-                </span>
-              </div>
-              <div className={`text-lg font-bold ${item.textColor}`}>
-                {item.count}
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {/* Warranty Attention Banner */}
+        {/* Warranty Alert Banner */}
         {warrantyExpiringSoon > 0 && (
           <Link
             to="/assets"
-            className="p-3 mb-4 rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/60 dark:bg-amber-950/20 flex items-center justify-between gap-3 text-amber-900 dark:text-amber-200 hover:bg-amber-100/60 dark:hover:bg-amber-950/40 transition-colors no-underline"
+            className="p-2.5 rounded-md border border-amber-200 dark:border-amber-900/60 bg-amber-50/60 dark:bg-amber-950/20 flex items-center justify-between gap-3 text-amber-900 dark:text-amber-200 hover:bg-amber-100/60 dark:hover:bg-amber-950/40 transition-colors no-underline"
           >
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <div className="text-xs">
-                <span className="font-semibold">{warrantyExpiringSoon} asset{warrantyExpiringSoon > 1 ? 's' : ''}</span> with warranty expiring in &le;30 days
-              </div>
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+              <p className="text-xs truncate">
+                <span className="font-semibold font-mono">{warrantyExpiringSoon}</span> hardware asset{warrantyExpiringSoon > 1 ? 's' : ''} have warranties expiring in &le;30 days
+              </p>
             </div>
-            <span className="text-xs font-semibold text-amber-700 dark:text-amber-400 underline shrink-0">
+            <span className="text-xs font-semibold text-amber-700 dark:text-amber-400 underline shrink-0 select-none">
               Review
             </span>
           </Link>
@@ -123,10 +116,10 @@ export function AssetOverviewWidget({
 
         {/* Categories Bar Distribution */}
         {assetsByCategory.length > 0 && (
-          <div>
-            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          <div className="space-y-2 pt-1">
+            <span className="text-[10.5px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
               Categories
-            </div>
+            </span>
             <div className="space-y-2">
               {assetsByCategory.slice(0, 4).map((cat) => {
                 const label = CATEGORY_LABELS[cat.category] || cat.category
@@ -135,13 +128,13 @@ export function AssetOverviewWidget({
                   <div key={cat.category} className="space-y-1">
                     <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300">
                       <span>{label}</span>
-                      <span className="font-semibold text-slate-900 dark:text-slate-100">
+                      <span className="font-semibold text-slate-900 dark:text-slate-100 font-mono">
                         {cat.count} ({percentage}%)
                       </span>
                     </div>
                     <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-primary-500 rounded-full"
+                        className="h-full bg-primary-600 dark:bg-primary-500 rounded-full transition-all"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
@@ -152,7 +145,7 @@ export function AssetOverviewWidget({
           </div>
         )}
       </div>
-    </div>
+    </Card>
   )
 }
 

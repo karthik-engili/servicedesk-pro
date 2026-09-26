@@ -8,15 +8,15 @@ export function Card({
 }) {
   const variantClasses = {
     default:
-      'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-3xs',
+      'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-2xs',
     bordered:
-      'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl',
+      'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg',
     elevated:
-      'bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-xl shadow-xs',
+      'bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-lg shadow-xs',
     panel:
-      'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden',
+      'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden',
     kpi:
-      'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-3xs transition-all hover:border-slate-300 dark:hover:border-slate-700',
+      'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4 sm:p-5 shadow-2xs transition-all hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50/40 dark:hover:bg-slate-800/30',
   }
 
   return (
