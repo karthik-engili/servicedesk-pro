@@ -42,23 +42,23 @@ export function RelatedTickets({ assetId }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <div>
-          <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
-            Linked Incident & Service Tickets
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <span>Linked Service & Incident Tickets</span>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
               {tickets.length}
             </span>
           </h3>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Support tickets referencing this asset tag for repairs, setup, or incidents
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Support tickets referencing this asset tag for repairs, setup, or incident triage
           </p>
         </div>
         <button
           type="button"
           onClick={fetchTickets}
           disabled={loading}
-          className="text-xs text-slate-500 hover:text-slate-800 disabled:opacity-50 cursor-pointer"
+          className="text-xs text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 disabled:opacity-50 cursor-pointer transition-colors"
         >
           Refresh
         </button>
@@ -69,28 +69,28 @@ export function RelatedTickets({ assetId }) {
           <Spinner size="md" />
         </div>
       ) : error ? (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 flex items-center justify-between">
+        <div className="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-lg text-sm text-rose-700 dark:text-rose-400 flex items-center justify-between">
           <span>{error}</span>
           <Button variant="ghost" size="sm" onClick={fetchTickets}>
             Retry
           </Button>
         </div>
       ) : tickets.length === 0 ? (
-        <div className="text-center py-8 border border-dashed border-slate-200 rounded-lg text-slate-500 text-xs">
+        <div className="text-center py-8 border border-dashed border-slate-200 dark:border-slate-800 rounded-lg text-slate-500 dark:text-slate-400 text-xs">
           No support tickets linked to this asset.
         </div>
       ) : (
-        <div className="divide-y divide-slate-100 border border-slate-200 rounded-lg overflow-hidden bg-white shadow-2xs">
+        <div className="divide-y divide-slate-100 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xs">
           {tickets.map((t) => (
             <div
               key={t._id}
-              className="p-3.5 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+              className="p-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
             >
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <div className="flex items-center gap-2 flex-wrap">
                   <Link
                     to={`/tickets/${t._id}`}
-                    className="font-mono font-bold text-blue-600 hover:text-blue-800 hover:underline"
+                    className="font-mono font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline"
                   >
                     {t.ticketNumber}
                   </Link>
@@ -98,9 +98,11 @@ export function RelatedTickets({ assetId }) {
                   <TicketPriorityBadge priority={t.priority} size="xs" />
                   <SlaIndicator ticket={t} compact={true} />
                 </div>
-                <div className="font-semibold text-slate-900 text-sm">{t.title}</div>
-                <div className="text-slate-500 text-[11px]">
-                  Requester: <strong className="text-slate-700">{t.createdBy?.name || 'User'}</strong> • Created {formatDate(t.createdAt)}
+                <div className="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+                  {t.title}
+                </div>
+                <div className="text-slate-500 dark:text-slate-400 text-[11px]">
+                  Requester: <strong className="text-slate-700 dark:text-slate-300">{t.createdBy?.name || 'User'}</strong> • Created {formatDate(t.createdAt)}
                 </div>
               </div>
 

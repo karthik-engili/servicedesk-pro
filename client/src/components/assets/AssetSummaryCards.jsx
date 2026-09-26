@@ -1,104 +1,121 @@
 import React from 'react'
 
-export function AssetSummaryCards({ summary = {}, activeStatus = '', onStatusClick }) {
+export function AssetSummaryCards({ summary = {}, activeStatus = '', onStatusClick, onWarrantyClick }) {
   const cards = [
     {
       key: 'TOTAL',
       statusValue: '',
       label: 'Total Assets',
       count: summary.totalAssets ?? 0,
-      color: 'border-slate-200 text-slate-900 bg-white',
-      accent: 'text-slate-900',
+      icon: '💻',
+      color: 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100',
+      accent: 'text-slate-900 dark:text-slate-100',
     },
     {
       key: 'AVAILABLE',
       statusValue: 'AVAILABLE',
       label: 'Available',
       count: summary.available ?? 0,
-      color: 'border-emerald-200 text-emerald-800 bg-emerald-50/40',
-      accent: 'text-emerald-700',
+      icon: '🟢',
+      color: 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-emerald-800 dark:text-emerald-300',
+      accent: 'text-emerald-600 dark:text-emerald-400',
     },
     {
       key: 'ASSIGNED',
       statusValue: 'ASSIGNED',
       label: 'Assigned',
       count: summary.assigned ?? 0,
-      color: 'border-blue-200 text-blue-800 bg-blue-50/40',
-      accent: 'text-blue-700',
+      icon: '👤',
+      color: 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-blue-800 dark:text-blue-300',
+      accent: 'text-primary-600 dark:text-primary-400',
     },
     {
       key: 'UNDER_REPAIR',
       statusValue: 'UNDER_REPAIR',
-      label: 'Under Repair',
+      label: 'In Repair',
       count: summary.underRepair ?? 0,
-      color: 'border-amber-200 text-amber-800 bg-amber-50/40',
-      accent: 'text-amber-700',
-    },
-    {
-      key: 'REPLACED',
-      statusValue: 'REPLACED',
-      label: 'Replaced',
-      count: summary.replaced ?? 0,
-      color: 'border-purple-200 text-purple-800 bg-purple-50/40',
-      accent: 'text-purple-700',
-    },
-    {
-      key: 'RETIRED',
-      statusValue: 'RETIRED',
-      label: 'Retired',
-      count: summary.retired ?? 0,
-      color: 'border-slate-200 text-slate-600 bg-slate-50',
-      accent: 'text-slate-600',
+      icon: '🔧',
+      color: 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-amber-800 dark:text-amber-300',
+      accent: 'text-amber-600 dark:text-amber-400',
     },
     {
       key: 'LOST',
       statusValue: 'LOST',
       label: 'Lost',
       count: summary.lost ?? 0,
-      color: 'border-rose-200 text-rose-800 bg-rose-50/40',
-      accent: 'text-rose-700',
+      icon: '⚠️',
+      color: 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-rose-800 dark:text-rose-300',
+      accent: 'text-rose-600 dark:text-rose-400',
+    },
+    {
+      key: 'WARRANTY_RISK',
+      isWarrantyRisk: true,
+      label: 'Warranty Risk',
+      count: summary.warrantyExpiringSoon ?? 0,
+      icon: '🛡️',
+      color: 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-amber-900 dark:text-amber-200',
+      accent: 'text-amber-600 dark:text-amber-400',
     },
   ]
 
   return (
-    <div className="space-y-2">
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+    <div className="space-y-3">
+      {/* Metric Tiles Strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {cards.map((card) => {
           const isSelected =
-            card.statusValue === activeStatus ||
-            (!card.statusValue && !activeStatus)
+            !card.isWarrantyRisk &&
+            ((card.statusValue === activeStatus) || (!card.statusValue && !activeStatus))
 
           return (
             <button
               key={card.key}
               type="button"
-              onClick={() => onStatusClick && onStatusClick(card.statusValue)}
+              onClick={() => {
+                if (card.isWarrantyRisk) {
+                  onWarrantyClick?.()
+                } else {
+                  onStatusClick?.(card.statusValue)
+                }
+              }}
               className={`p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs ${card.color} ${
                 isSelected
-                  ? 'ring-2 ring-blue-500/80 shadow-xs'
-                  : 'hover:border-slate-300'
+                  ? 'ring-2 ring-primary-500/80 dark:ring-primary-400/80 border-primary-400 dark:border-primary-600'
+                  : 'hover:border-slate-300 dark:hover:border-slate-700'
               }`}
             >
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 truncate">
-                {card.label}
+              <div className="flex items-center justify-between gap-1 mb-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
+                  {card.label}
+                </span>
+                <span className="text-xs opacity-75">{card.icon}</span>
               </div>
-              <div className={`text-xl font-bold mt-1 ${card.accent}`}>
-                {card.count}
+              <div className={`text-xl font-bold font-mono ${card.accent}`}>
+                {Number(card.count).toLocaleString()}
               </div>
             </button>
           )
         })}
       </div>
 
+      {/* Warranty Attention Banner (if any) */}
       {summary.warrantyExpiringSoon > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg px-3.5 py-2 text-xs flex items-center justify-between text-amber-900">
+        <div className="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/70 rounded-xl px-4 py-2.5 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-amber-900 dark:text-amber-200 shadow-2xs">
           <div className="flex items-center gap-2">
-            <span>⚠️</span>
+            <span className="text-amber-600 dark:text-amber-400 text-sm">⚠️</span>
             <span>
-              <strong>{summary.warrantyExpiringSoon}</strong> asset(s) have warranties expiring within the next 30 days.
+              <strong>WARRANTY ATTENTION:</strong> {summary.warrantyExpiringSoon} active asset{summary.warrantyExpiringSoon > 1 ? 's have warranties' : ' has a warranty'} expiring within 30 days.
             </span>
           </div>
-          <span className="text-[11px] font-medium text-amber-700">Attention Required</span>
+          {onWarrantyClick && (
+            <button
+              type="button"
+              onClick={onWarrantyClick}
+              className="text-xs font-semibold text-amber-800 dark:text-amber-300 hover:text-amber-950 dark:hover:text-amber-100 hover:underline cursor-pointer self-start sm:self-auto"
+            >
+              View affected assets &rarr;
+            </button>
+          )}
         </div>
       )}
     </div>

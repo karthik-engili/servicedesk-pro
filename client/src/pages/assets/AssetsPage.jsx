@@ -24,7 +24,6 @@ export function AssetsPage() {
   const { showSuccess, showError } = useToast()
 
   const isManager = ['system_admin', 'it_manager', 'asset_manager'].includes(user?.role)
-  const isAdmin = user?.role === 'system_admin'
 
   // Active view tab: 'inventory' | 'warranty' | 'vendors'
   const activeTab = searchParams.get('tab') || 'inventory'
@@ -246,14 +245,18 @@ export function AssetsPage() {
       fetchVendors()
     } catch (err) {
       const parsed = handleApiError(err)
-      showError(parsed.message || 'Failed to delete vendor.')
+      if (err.response?.status === 400 || (parsed.message && parsed.message.toLowerCase().includes('associated'))) {
+        showError('Vendor cannot be deleted: This vendor is still associated with active assets.')
+      } else {
+        showError(parsed.message || 'Failed to delete vendor.')
+      }
     }
   }
 
   return (
     <PageContainer
-      title="Hardware & CMDB Assets"
-      description="Enterprise hardware lifecycle tracking, assignment custody, maintenance, and vendor directory"
+      title="IT Assets & CMDB"
+      description="Manage enterprise hardware inventory, assignments, maintenance, and lifecycle operations"
       actions={
         <div className="flex items-center gap-2">
           {activeTab === 'vendors' && isManager && (
@@ -286,17 +289,18 @@ export function AssetsPage() {
     >
       <div className="space-y-5">
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
+        <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
           <button
             type="button"
             onClick={() => setTab('inventory')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 ${
               activeTab === 'inventory'
-                ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/80 shadow-2xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
             }`}
           >
-            💻 Asset Inventory
+            <span>💻</span>
+            <span>Asset Inventory</span>
           </button>
 
           <button
@@ -304,11 +308,12 @@ export function AssetsPage() {
             onClick={() => setTab('warranty')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 ${
               activeTab === 'warranty'
-                ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/80 shadow-2xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
             }`}
           >
-            <span>🛡️ Expiring Warranties</span>
+            <span>🛡️</span>
+            <span>Expiring Warranties</span>
             {summary.warrantyExpiringSoon > 0 && (
               <span className="w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center font-bold">
                 {summary.warrantyExpiringSoon}
@@ -319,28 +324,30 @@ export function AssetsPage() {
           <button
             type="button"
             onClick={() => setTab('vendors')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 ${
               activeTab === 'vendors'
-                ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/80 shadow-2xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
             }`}
           >
-            🏢 Vendors & Suppliers
+            <span>🏢</span>
+            <span>Vendors & Suppliers</span>
           </button>
         </div>
 
         {/* TAB 1: INVENTORY */}
         {activeTab === 'inventory' && (
           <div className="space-y-4">
-            {/* KPI Summary Cards */}
+            {/* KPI Summary Strip */}
             <AssetSummaryCards
               summary={summary}
               activeStatus={currentFilters.status}
               onStatusClick={handleSummaryStatusClick}
+              onWarrantyClick={() => setTab('warranty')}
             />
 
-            {/* Filter Bar */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+            {/* Filter Toolbar */}
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs">
               <AssetFilters
                 filters={currentFilters}
                 onChange={handleFilterChange}
@@ -350,17 +357,17 @@ export function AssetsPage() {
               />
             </div>
 
-            {/* Results Header */}
+            {/* Results Counter Header */}
             <div className="flex items-center justify-between px-1">
-              <div className="text-xs text-slate-500 font-medium">
+              <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                 {loading ? (
                   <span>Updating assets...</span>
                 ) : (
                   <span>
-                    Total Assets: <strong className="text-slate-800">{pagination.total || 0}</strong>
+                    Total Assets: <strong className="text-slate-800 dark:text-slate-200 font-mono">{pagination.total || 0}</strong>
                     {currentFilters.status && (
-                      <span className="text-blue-600 font-normal ml-1">
-                        (filtered by status: {currentFilters.status})
+                      <span className="text-blue-600 dark:text-blue-400 font-normal ml-1">
+                        (filtered by: {currentFilters.status})
                       </span>
                     )}
                   </span>
@@ -368,7 +375,7 @@ export function AssetsPage() {
               </div>
             </div>
 
-            {/* Table */}
+            {/* Inventory Table */}
             {error ? (
               <ErrorState title="Error Loading Assets" message={error} onRetry={fetchAssets} />
             ) : (
@@ -381,10 +388,10 @@ export function AssetsPage() {
 
                 {/* Pagination Controls */}
                 {!loading && assets.length > 0 && pagination.pages > 1 && (
-                  <div className="bg-white px-4 py-3 border border-slate-200 rounded-xl flex items-center justify-between shadow-2xs">
-                    <div className="text-xs text-slate-600">
-                      Showing page <strong className="font-semibold text-slate-900">{pagination.page}</strong> of{' '}
-                      <strong className="font-semibold text-slate-900">{pagination.pages}</strong> ({pagination.total} assets)
+                  <div className="bg-white dark:bg-slate-900 px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-between shadow-2xs">
+                    <div className="text-xs text-slate-600 dark:text-slate-400">
+                      Showing page <strong className="font-semibold text-slate-900 dark:text-slate-100 font-mono">{pagination.page}</strong> of{' '}
+                      <strong className="font-semibold text-slate-900 dark:text-slate-100 font-mono">{pagination.pages}</strong> ({pagination.total} assets)
                     </div>
 
                     <div className="flex items-center gap-1.5">
@@ -397,7 +404,7 @@ export function AssetsPage() {
                         Previous
                       </Button>
 
-                      <span className="px-3 py-1 text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-md">
+                      <span className="px-3 py-1 text-xs font-semibold font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md">
                         {pagination.page}
                       </span>
 
@@ -420,19 +427,19 @@ export function AssetsPage() {
         {/* TAB 2: EXPIRING WARRANTIES */}
         {activeTab === 'warranty' && (
           <div className="space-y-4">
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between">
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                   Warranties Expiring Within 30 Days
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Critical hardware nearing support contract expiration requiring warranty extension or retirement
                 </p>
               </div>
               <button
                 type="button"
                 onClick={fetchExpiringWarranties}
-                className="text-xs text-slate-500 hover:text-slate-800 cursor-pointer"
+                className="text-xs text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 cursor-pointer transition-colors"
               >
                 Refresh
               </button>
@@ -443,19 +450,19 @@ export function AssetsPage() {
                 <Spinner size="lg" />
               </div>
             ) : expiringAssets.length === 0 ? (
-              <div className="bg-white p-8 rounded-xl border border-slate-200 text-center space-y-2">
+              <div className="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-200 dark:border-slate-800 text-center space-y-2">
                 <div className="text-2xl">🛡️</div>
-                <h4 className="text-sm font-semibold text-slate-900">All Warranties Current</h4>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">All Warranties Current</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
                   No registered active hardware has warranty expiration dates within the next 30 days.
                 </p>
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
+              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-2xs">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                      <th className="py-3 px-4">Asset</th>
+                    <tr className="bg-slate-50/80 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      <th className="py-3 px-4">Asset ID</th>
                       <th className="py-3 px-4">Name / Model</th>
                       <th className="py-3 px-4">Status</th>
                       <th className="py-3 px-4">Warranty Deadline</th>
@@ -464,21 +471,21 @@ export function AssetsPage() {
                       <th className="py-3 px-4 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 text-xs">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
                     {expiringAssets.map((a) => (
-                      <tr key={a._id} className="hover:bg-slate-50 transition-colors">
-                        <td className="py-3.5 px-4 font-mono font-semibold text-blue-600">
+                      <tr key={a._id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                        <td className="py-3.5 px-4 font-mono font-semibold text-blue-600 dark:text-blue-400">
                           {a.assetTag}
                         </td>
-                        <td className="py-3.5 px-4 font-semibold text-slate-800">{a.name}</td>
+                        <td className="py-3.5 px-4 font-semibold text-slate-800 dark:text-slate-200">{a.name}</td>
                         <td className="py-3.5 px-4">
                           <AssetStatusBadge status={a.status} size="xs" />
                         </td>
                         <td className="py-3.5 px-4">
                           <WarrantyBadge warrantyExpiry={a.warrantyExpiry} showDate={true} size="xs" />
                         </td>
-                        <td className="py-3.5 px-4 text-slate-600">{a.assignedTo?.name || 'Unassigned'}</td>
-                        <td className="py-3.5 px-4 text-slate-600">{a.vendor?.name || '-'}</td>
+                        <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">{a.assignedTo?.name || 'Unassigned'}</td>
+                        <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">{a.vendor?.name || '—'}</td>
                         <td className="py-3.5 px-4 text-right">
                           <Button
                             variant="outline"
@@ -501,19 +508,19 @@ export function AssetsPage() {
         {/* TAB 3: VENDORS */}
         {activeTab === 'vendors' && (
           <div className="space-y-4">
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="relative max-w-sm w-full">
                 <input
                   type="text"
                   value={vendorSearch}
                   onChange={(e) => setVendorSearch(e.target.value)}
                   placeholder="Search vendors by name or contact..."
-                  className="w-full text-xs sm:text-sm bg-white border border-slate-300 rounded-lg pl-3 pr-8 py-2 text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full text-xs sm:text-sm bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg pl-3 pr-8 py-2 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
-              <div className="text-xs text-slate-500">
-                Total Vendors: <strong className="text-slate-800">{vendorPagination.total}</strong>
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                Total Vendors: <strong className="text-slate-800 dark:text-slate-200 font-mono">{vendorPagination.total}</strong>
               </div>
             </div>
 
@@ -527,7 +534,7 @@ export function AssetsPage() {
         )}
       </div>
 
-      {/* Asset Form Modal (Create) */}
+      {/* Asset Form Modal / Drawer (Create) */}
       <AssetFormModal
         isOpen={createAssetOpen}
         onClose={() => setCreateAssetOpen(false)}

@@ -30,18 +30,22 @@ export const STATUS_LABELS = {
   AVAILABLE: 'Available',
   ASSIGNED: 'Assigned',
   UNDER_REPAIR: 'Under Repair',
+  RETURNED_FROM_REPAIR: 'Returned from Repair',
   REPLACED: 'Replaced',
   RETIRED: 'Retired',
   LOST: 'Lost',
+  RECOVERED: 'Recovered',
 }
 
 export const STATUS_BADGE_VARIANTS = {
   AVAILABLE: 'success',
   ASSIGNED: 'info',
   UNDER_REPAIR: 'warning',
+  RETURNED_FROM_REPAIR: 'info',
   REPLACED: 'purple',
   RETIRED: 'neutral',
   LOST: 'danger',
+  RECOVERED: 'success',
 }
 
 export const CATEGORY_LABELS = {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Modal, Button, Select } from '../ui'
+import { Modal, Button } from '../ui'
 import assetService from '../../services/assetService'
 import api from '../../services/api'
 import { useToast } from '../../contexts/ToastContext'
@@ -84,32 +84,34 @@ export function AssignAssetModal({ isOpen, onClose, asset, onAssigned }) {
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="p-3 text-xs bg-red-50 text-red-700 border border-red-200 rounded-lg">
+          <div className="p-3 text-xs bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900/60 rounded-lg">
             {error}
           </div>
         )}
 
-        <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-1 text-xs">
-          <div className="font-semibold text-slate-800">{asset.name}</div>
-          <div className="text-slate-500 font-mono">Tag: {asset.assetTag}</div>
+        <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1 text-xs">
+          <div className="font-semibold text-slate-900 dark:text-slate-100">{asset.name}</div>
+          <div className="text-slate-500 dark:text-slate-400 font-mono">Tag: {asset.assetTag}</div>
           {asset.serialNumber && (
-            <div className="text-slate-500 font-mono">S/N: {asset.serialNumber}</div>
+            <div className="text-slate-500 dark:text-slate-400 font-mono">
+              S/N: {asset.serialNumber}
+            </div>
           )}
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
-            Assign To Employee <span className="text-red-500">*</span>
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+            Assign To Employee <span className="text-rose-500">*</span>
           </label>
           <select
             value={selectedUser}
             onChange={(e) => setSelectedUser(e.target.value)}
             disabled={loadingUsers || submitting}
             required
-            className="w-full text-xs sm:text-sm bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+            className="w-full text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
           >
             <option value="">
-              {loadingUsers ? 'Loading employees...' : '-- Select Employee --'}
+              {loadingUsers ? 'Loading staff members...' : '-- Select Employee --'}
             </option>
             {users.map((u) => (
               <option key={u._id} value={u._id}>
@@ -120,7 +122,7 @@ export function AssignAssetModal({ isOpen, onClose, asset, onAssigned }) {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
             Assignment Notes (Optional)
           </label>
           <textarea
@@ -129,11 +131,11 @@ export function AssignAssetModal({ isOpen, onClose, asset, onAssigned }) {
             onChange={(e) => setNotes(e.target.value)}
             placeholder="e.g. Primary development laptop provided upon onboarding..."
             disabled={submitting}
-            className="w-full text-xs sm:text-sm bg-white border border-slate-300 rounded-lg p-2.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
 
-        <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+        <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
           <Button
             type="button"
             variant="outline"

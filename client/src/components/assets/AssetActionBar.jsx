@@ -134,7 +134,7 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
             variant="outline"
             size="sm"
             onClick={openReplaceModal}
-            className="flex items-center gap-1.5 text-purple-700 border-purple-200 hover:bg-purple-50"
+            className="flex items-center gap-1.5 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950/40"
           >
             <span>🔄</span> Replace Asset
           </Button>
@@ -146,7 +146,7 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
             variant="outline"
             size="sm"
             onClick={() => setLostOpen(true)}
-            className="flex items-center gap-1.5 text-rose-700 border-rose-200 hover:bg-rose-50"
+            className="flex items-center gap-1.5 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/40"
           >
             <span>⚠️</span> Report Lost
           </Button>
@@ -170,14 +170,14 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
             variant="ghost"
             size="sm"
             onClick={() => setRetireOpen(true)}
-            className="text-slate-500 hover:text-rose-600 hover:bg-rose-50"
+            className="text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40"
           >
             <span>🗑️</span> Retire
           </Button>
         )}
 
         {asset.status === 'RETIRED' && (
-          <span className="text-xs text-slate-400 italic">
+          <span className="text-xs text-slate-400 dark:text-slate-500 italic">
             This asset is permanently retired. No further lifecycle operations permitted.
           </span>
         )}
@@ -199,14 +199,14 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
         maxWidth="max-w-md"
       >
         <div className="space-y-4 text-xs">
-          <p className="text-slate-600">
-            Are you sure you want to unassign <strong>{asset.name}</strong> ({asset.assetTag}) from{' '}
-            <strong>{asset.assignedTo?.name || 'current user'}</strong>? The asset will return to
-            the AVAILABLE pool.
+          <p className="text-slate-600 dark:text-slate-300">
+            Are you sure you want to unassign <strong className="text-slate-900 dark:text-slate-100">{asset.name}</strong> ({asset.assetTag}) from{' '}
+            <strong className="text-slate-900 dark:text-slate-100">{asset.assignedTo?.name || 'current user'}</strong>? The asset will return to
+            the AVAILABLE inventory pool.
           </p>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">
+            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Unassignment Notes (Optional)
             </label>
             <textarea
@@ -214,11 +214,11 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
               value={actionNotes}
               onChange={(e) => setActionNotes(e.target.value)}
               placeholder="e.g. Employee changed role or returned hardware..."
-              className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
             <Button variant="outline" size="sm" onClick={() => setUnassignOpen(false)}>
               Cancel
             </Button>
@@ -248,13 +248,13 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
         maxWidth="max-w-md"
       >
         <div className="space-y-4 text-xs">
-          <p className="text-slate-600">
-            Record maintenance or warranty dispatch for <strong>{asset.assetTag}</strong>. Current status will change to <strong>UNDER_REPAIR</strong>.
+          <p className="text-slate-600 dark:text-slate-300">
+            Record maintenance or warranty dispatch for <strong className="text-slate-900 dark:text-slate-100">{asset.assetTag}</strong>. Current status will transition to <strong className="text-amber-600 dark:text-amber-400">UNDER_REPAIR</strong>.
           </p>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">
-              Issue / Repair Description <span className="text-red-500">*</span>
+            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Issue / Repair Description <span className="text-rose-500">*</span>
             </label>
             <textarea
               rows={3}
@@ -262,11 +262,11 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
               onChange={(e) => setActionNotes(e.target.value)}
               placeholder="e.g. Broken motherboard hinge, battery swelling, RMA ticket #..."
               required
-              className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
             <Button variant="outline" size="sm" onClick={() => setRepairOpen(false)}>
               Cancel
             </Button>
@@ -297,12 +297,12 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
         maxWidth="max-w-md"
       >
         <div className="space-y-4 text-xs">
-          <p className="text-slate-600">
-            Confirm that repairs for <strong>{asset.assetTag}</strong> are complete. The asset will be verified and returned to <strong>AVAILABLE</strong> stock.
+          <p className="text-slate-600 dark:text-slate-300">
+            Confirm that repairs for <strong className="text-slate-900 dark:text-slate-100">{asset.assetTag}</strong> are complete. The asset will be verified and returned to <strong className="text-emerald-600 dark:text-emerald-400">AVAILABLE</strong> stock.
           </p>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">
+            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Resolution / Service Notes (Optional)
             </label>
             <textarea
@@ -310,11 +310,11 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
               value={actionNotes}
               onChange={(e) => setActionNotes(e.target.value)}
               placeholder="e.g. Battery replaced under warranty, passed diagnostics..."
-              className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
             <Button variant="outline" size="sm" onClick={() => setReturnRepairOpen(false)}>
               Cancel
             </Button>
@@ -344,18 +344,18 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
         maxWidth="max-w-md"
       >
         <div className="space-y-4 text-xs">
-          <p className="text-slate-600">
-            Mark <strong>{asset.assetTag}</strong> as <strong>REPLACED</strong>. You may optionally select an available asset to automatically assign to the previous owner.
+          <p className="text-slate-600 dark:text-slate-300">
+            Mark <strong className="text-slate-900 dark:text-slate-100">{asset.assetTag}</strong> as <strong className="text-purple-600 dark:text-purple-400">REPLACED</strong>. You may optionally select an available asset to automatically assign to the previous owner.
           </p>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">
+            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Replacement Unit (Optional Available Asset)
             </label>
             <select
               value={replacementAssetId}
               onChange={(e) => setReplacementAssetId(e.target.value)}
-              className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
             >
               <option value="">-- No replacement unit (Retire as replaced only) --</option>
               {availableAssets.map((cand) => (
@@ -367,7 +367,7 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">
+            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Replacement Notes (Optional)
             </label>
             <textarea
@@ -375,11 +375,11 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
               value={actionNotes}
               onChange={(e) => setActionNotes(e.target.value)}
               placeholder="e.g. Issued upgraded model under tech refresh cycle..."
-              className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
             <Button variant="outline" size="sm" onClick={() => setReplaceOpen(false)}>
               Cancel
             </Button>
@@ -413,13 +413,13 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
         maxWidth="max-w-md"
       >
         <div className="space-y-4 text-xs">
-          <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800">
-            <strong>Security Warning:</strong> Reporting an asset lost triggers an incident alert to IT Managers and SecOps.
+          <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-lg text-rose-800 dark:text-rose-300">
+            <strong>Security Warning:</strong> Reporting an asset lost marks it as LOST in CMDB and alerts IT Security.
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">
-              Circumstances / Police Report / Incident Details <span className="text-red-500">*</span>
+            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Circumstances / Police Report / Incident Details <span className="text-rose-500">*</span>
             </label>
             <textarea
               rows={3}
@@ -427,11 +427,11 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
               onChange={(e) => setActionNotes(e.target.value)}
               placeholder="Date, location, police report reference or circumstances of loss..."
               required
-              className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-rose-500"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-rose-500"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
             <Button variant="outline" size="sm" onClick={() => setLostOpen(false)}>
               Cancel
             </Button>
@@ -462,12 +462,12 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
         maxWidth="max-w-md"
       >
         <div className="space-y-4 text-xs">
-          <p className="text-slate-600">
-            Confirm that lost asset <strong>{asset.assetTag}</strong> has been recovered. It will be returned to <strong>AVAILABLE</strong> stock after verification.
+          <p className="text-slate-600 dark:text-slate-300">
+            Confirm that lost asset <strong className="text-slate-900 dark:text-slate-100">{asset.assetTag}</strong> has been recovered. It will be returned to <strong className="text-emerald-600 dark:text-emerald-400">AVAILABLE</strong> stock after verification.
           </p>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">
+            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Recovery Verification Notes
             </label>
             <textarea
@@ -475,11 +475,11 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
               value={actionNotes}
               onChange={(e) => setActionNotes(e.target.value)}
               placeholder="e.g. Found in office conference room 4B, serial verified..."
-              className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
             <Button variant="outline" size="sm" onClick={() => setRecoverOpen(false)}>
               Cancel
             </Button>
@@ -509,12 +509,12 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
         maxWidth="max-w-md"
       >
         <div className="space-y-4 text-xs">
-          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-900">
+          <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-lg text-amber-900 dark:text-amber-300">
             <strong>Terminal Lifecycle Action:</strong> Retiring an asset permanently removes it from circulation and unassigns any current user. This action cannot be reversed.
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">
+            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Retirement Reason / Disposal Details
             </label>
             <textarea
@@ -522,11 +522,11 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
               value={actionNotes}
               onChange={(e) => setActionNotes(e.target.value)}
               placeholder="e.g. End-of-life e-waste recycling, donor parts cannibalized..."
-              className="w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
             <Button variant="outline" size="sm" onClick={() => setRetireOpen(false)}>
               Cancel
             </Button>
