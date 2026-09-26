@@ -1,16 +1,52 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import { useNotifications } from '../../contexts/NotificationContext'
 import { ROLE_LABELS, ROLE_BADGE_VARIANTS } from '../../constants/roles'
 import Badge from '../ui/Badge'
+import {
+  DashboardIcon,
+  TicketIcon,
+  KnowledgeIcon,
+  NotificationIcon,
+  AssetIcon,
+  VendorIcon,
+  HealthIcon,
+  ProfileIcon,
+  CloseIcon,
+  CollapseLeftIcon,
+  CollapseRightIcon,
+  LogOutIcon,
+} from '../ui/Icons'
 
-export function Sidebar({ isOpen, onClose }) {
+export function Sidebar({ isOpen, onClose, isCollapsed = false, onToggleCollapse }) {
   const { user, logout } = useAuth()
+  const { unreadCount } = useNotifications()
   const userRole = user?.role || 'employee'
   const userRoleLabel = ROLE_LABELS[userRole] || userRole
   const badgeVariant = ROLE_BADGE_VARIANTS[userRole] || 'neutral'
 
-  // Define navigation structure with enterprise grouping
+  // Manage body scroll lock and Escape key when mobile drawer is open
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose?.()
+      }
+    }
+
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.body.style.overflow = originalOverflow
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isOpen, onClose])
+
+  // Build navigation items according to strict enterprise RBAC
   const getNavGroups = () => {
     const isStaffUser = ['technician', 'asset_manager', 'it_manager', 'system_admin'].includes(userRole)
     const isAssetUser = ['asset_manager', 'it_manager', 'system_admin'].includes(userRole)
@@ -23,48 +59,33 @@ export function Sidebar({ isOpen, onClose }) {
           {
             label: 'Dashboard',
             path: '/dashboard',
-            icon: (
-              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-            ),
+            icon: <DashboardIcon className="w-[18px] h-[18px] shrink-0" />,
           },
         ],
       },
       {
         heading: 'Service Operations',
         items: [
-          // Tickets visible to all except dedicated asset manager who focuses on CMDB
+          // Tickets visible to all except dedicated asset manager
           ...(userRole !== 'asset_manager'
             ? [
                 {
                   label: 'Tickets',
                   path: '/tickets',
-                  icon: (
-                    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                    </svg>
-                  ),
+                  icon: <TicketIcon className="w-[18px] h-[18px] shrink-0" />,
                 },
               ]
             : []),
           {
             label: 'Knowledge Base',
             path: '/knowledge',
-            icon: (
-              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            ),
+            icon: <KnowledgeIcon className="w-[18px] h-[18px] shrink-0" />,
           },
           {
             label: 'Notifications',
             path: '/notifications',
-            icon: (
-              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-            ),
+            icon: <NotificationIcon className="w-[18px] h-[18px] shrink-0" />,
+            badge: unreadCount > 0 ? (unreadCount > 9 ? '9+' : unreadCount) : null,
           },
         ],
       },
@@ -78,22 +99,14 @@ export function Sidebar({ isOpen, onClose }) {
           {
             label: 'IT Assets',
             path: '/assets',
-            icon: (
-              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            ),
+            icon: <AssetIcon className="w-[18px] h-[18px] shrink-0" />,
           },
           ...(isAssetUser
             ? [
                 {
                   label: 'Vendors',
                   path: '/assets?tab=vendors',
-                  icon: (
-                    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                  ),
+                  icon: <VendorIcon className="w-[18px] h-[18px] shrink-0" />,
                 },
               ]
             : []),
@@ -109,28 +122,20 @@ export function Sidebar({ isOpen, onClose }) {
           {
             label: 'System Health',
             path: '/health-check',
-            icon: (
-              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            ),
+            icon: <HealthIcon className="w-[18px] h-[18px] shrink-0" />,
           },
         ],
       })
     }
 
-    // Account Group (Profile)
+    // Account Group
     groups.push({
       heading: 'Account',
       items: [
         {
           label: 'Profile & Settings',
           path: '/profile',
-          icon: (
-            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          ),
+          icon: <ProfileIcon className="w-[18px] h-[18px] shrink-0" />,
         },
       ],
     })
@@ -140,12 +145,15 @@ export function Sidebar({ isOpen, onClose }) {
 
   const navGroups = getNavGroups()
 
+  // Base widths
+  const desktopWidthClass = isCollapsed ? 'lg:w-16' : 'lg:w-60'
+
   return (
     <>
-      {/* Mobile Backdrop */}
+      {/* Mobile Drawer Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-xs lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-xs lg:hidden transition-opacity"
           onClick={onClose}
           aria-hidden="true"
         />
@@ -153,97 +161,172 @@ export function Sidebar({ isOpen, onClose }) {
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-40 w-64 bg-slate-900 dark:bg-slate-950 border-r border-slate-800 text-slate-300 flex flex-col transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-auto shrink-0 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+        aria-label="Primary Navigation"
+        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-slate-900 dark:bg-slate-950 border-r border-slate-800 text-slate-300 flex flex-col transition-all duration-200 ease-in-out lg:translate-x-0 lg:static lg:h-screen lg:sticky lg:top-0 shrink-0 ${desktopWidthClass} ${
+          isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         }`}
       >
         {/* Brand Header */}
-        <div className="h-16 flex items-center justify-between px-5 border-b border-slate-800 shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-bold text-xs shadow-xs">
+        <div
+          className={`h-16 flex items-center border-b border-slate-800/90 shrink-0 px-3.5 ${
+            isCollapsed ? 'lg:justify-center' : 'justify-between'
+          }`}
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-md bg-primary-600 flex items-center justify-center text-white font-bold text-xs shadow-xs shrink-0 select-none">
               SD
             </div>
-            <div>
-              <span className="font-semibold text-white tracking-tight text-sm block leading-tight">
-                ServiceDesk Pro
-              </span>
-              <span className="text-[10px] text-slate-400 font-mono tracking-wider uppercase block">
-                Enterprise ITSM
-              </span>
-            </div>
+            {!isCollapsed && (
+              <div className="truncate">
+                <span className="font-semibold text-white tracking-tight text-sm block leading-tight">
+                  ServiceDesk Pro
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono tracking-wider uppercase block">
+                  Enterprise ITSM
+                </span>
+              </div>
+            )}
           </div>
+
+          {/* Desktop Collapse Toggle */}
+          {onToggleCollapse && (
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              className="hidden lg:flex items-center justify-center p-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
+            >
+              {isCollapsed ? (
+                <CollapseRightIcon className="w-4 h-4" />
+              ) : (
+                <CollapseLeftIcon className="w-4 h-4" />
+              )}
+            </button>
+          )}
+
+          {/* Mobile Close Button */}
           <button
             type="button"
             onClick={onClose}
-            className="lg:hidden text-slate-400 hover:text-white p-1.5 rounded-md hover:bg-slate-800 transition-colors"
-            aria-label="Close menu"
+            className="lg:hidden text-slate-400 hover:text-white p-1.5 rounded-md hover:bg-slate-800 transition-colors cursor-pointer"
+            aria-label="Close navigation"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <CloseIcon className="w-5 h-5" />
           </button>
         </div>
 
         {/* Grouped Navigation Links */}
-        <nav className="flex-1 px-3 py-3 overflow-y-auto space-y-4">
-          {navGroups.map((group) => (
+        <nav className="flex-1 px-2.5 py-3 overflow-y-auto space-y-4 overflow-x-hidden">
+          {navGroups.map((group, groupIdx) => (
             <div key={group.heading} className="space-y-0.5">
-              <div className="px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400/90 py-1">
-                {group.heading}
-              </div>
+              {/* Group Heading */}
+              {isCollapsed ? (
+                groupIdx > 0 && <div className="h-px bg-slate-800/80 my-2 mx-1" />
+              ) : (
+                <div className="px-2.5 text-[10.5px] font-semibold uppercase tracking-wider text-slate-400/80 py-1 select-none">
+                  {group.heading}
+                </div>
+              )}
+
+              {/* Items */}
               {group.items.map((item) => (
                 <NavLink
                   key={item.path}
                   to={item.path}
+                  title={isCollapsed ? item.label : undefined}
                   onClick={() => {
                     if (window.innerWidth < 1024) onClose?.()
                   }}
                   className={({ isActive }) =>
-                    `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
+                    `group relative flex items-center gap-2.5 rounded-md text-xs font-medium transition-all duration-150 h-9 ${
+                      isCollapsed ? 'lg:justify-center px-0' : 'px-2.5'
+                    } ${
                       isActive
-                        ? 'bg-primary-600 text-white shadow-xs font-semibold'
-                        : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                        ? 'bg-primary-500/10 text-primary-400 font-semibold border-l-2 border-primary-500'
+                        : 'text-slate-300 hover:bg-slate-800/60 hover:text-white border-l-2 border-transparent'
                     }`
                   }
                 >
-                  {item.icon}
-                  <span>{item.label}</span>
+                  {/* Icon */}
+                  <span className="shrink-0">{item.icon}</span>
+
+                  {/* Label (Expanded) */}
+                  {!isCollapsed && (
+                    <span className="truncate flex-1 text-left">{item.label}</span>
+                  )}
+
+                  {/* Notification Count Badge */}
+                  {item.badge && (
+                    <span
+                      className={`inline-flex items-center justify-center font-mono font-bold leading-none shrink-0 ${
+                        isCollapsed
+                          ? 'absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500'
+                          : 'min-w-[18px] h-4.5 px-1 text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-full'
+                      }`}
+                    >
+                      {!isCollapsed && item.badge}
+                    </span>
+                  )}
                 </NavLink>
               ))}
             </div>
           ))}
         </nav>
 
-        {/* User Card & Logout */}
-        <div className="p-3 border-t border-slate-800 bg-slate-950/60 shrink-0">
-          <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800/80">
-            <div className="flex items-center justify-between gap-2 mb-1">
-              <span className="text-xs font-semibold text-white truncate max-w-[130px]">
-                {user?.name || 'Authorized User'}
-              </span>
-              <Badge variant={badgeVariant} size="xs">
-                {userRoleLabel}
-              </Badge>
+        {/* Sidebar User / Account Area */}
+        <div className="p-2.5 border-t border-slate-800/90 bg-slate-950/70 shrink-0">
+          {isCollapsed ? (
+            // Collapsed view: Avatar only with tooltip
+            <div className="flex flex-col items-center gap-2 py-1">
+              <NavLink
+                to="/profile"
+                title={`${user?.name || 'User'} (${userRoleLabel})`}
+                className="w-8 h-8 rounded-full bg-primary-950 text-primary-300 font-semibold text-xs flex items-center justify-center border border-primary-800/80 hover:border-primary-600 transition-colors"
+              >
+                {user?.name ? user.name.slice(0, 2).toUpperCase() : 'SD'}
+              </NavLink>
+              <button
+                type="button"
+                onClick={logout}
+                title="Sign out"
+                aria-label="Sign out"
+                className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800/80 rounded transition-colors cursor-pointer"
+              >
+                <LogOutIcon className="w-4 h-4" />
+              </button>
             </div>
-            <p className="text-[11px] text-slate-400 truncate mb-2.5">
-              {user?.email || 'user@servicedesk.local'}
-            </p>
-            <button
-              type="button"
-              onClick={logout}
-              className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs font-medium text-slate-300 bg-slate-800 hover:bg-rose-950/60 hover:text-rose-300 hover:border-rose-900/50 rounded border border-slate-700 transition-colors cursor-pointer"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                />
-              </svg>
-              Sign out
-            </button>
-          </div>
+          ) : (
+            // Expanded view: Full user card
+            <div className="p-2 rounded-lg bg-slate-900/90 border border-slate-800">
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="w-7 h-7 rounded-full bg-primary-950 text-primary-300 font-semibold text-[11px] flex items-center justify-center border border-primary-800/80 shrink-0">
+                  {user?.name ? user.name.slice(0, 2).toUpperCase() : 'SD'}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="text-xs font-semibold text-white truncate">
+                      {user?.name || 'Authorized User'}
+                    </span>
+                    <Badge variant={badgeVariant} size="xs" className="shrink-0 text-[10px] py-0 px-1.5">
+                      {userRoleLabel}
+                    </Badge>
+                  </div>
+                  <p className="text-[11px] text-slate-400 truncate">
+                    {user?.email || 'user@servicedesk.local'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={logout}
+                className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 text-[11px] font-medium text-slate-300 bg-slate-800/80 hover:bg-rose-950/50 hover:text-rose-300 hover:border-rose-900/50 rounded border border-slate-700/80 transition-colors cursor-pointer"
+              >
+                <LogOutIcon className="w-3.5 h-3.5" />
+                Sign out
+              </button>
+            </div>
+          )}
         </div>
       </aside>
     </>
