@@ -203,11 +203,22 @@ export function AiTicketCopilot({ ticket, onTicketUpdated, className = '' }) {
         {/* Analyzed Active Intelligence State */}
         {analysis && !analyzing && (
           <div className="space-y-4 text-xs">
+            {/* Advisory Human-in-the-loop Notice */}
+            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+              <span className="uppercase tracking-wider font-semibold">AI Suggestion</span>
+              <span>Review before applying</span>
+            </div>
+
             {/* Fallback Notice (if source is fallback) */}
             {!analysis.aiAvailable && (
-              <div className="p-2.5 rounded-lg bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-[11px] flex items-center gap-2">
-                <span className="shrink-0 text-sm">ℹ️</span>
-                <span>AI unavailable — using local support intelligence rules.</span>
+              <div className="p-2.5 rounded-lg bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-[11px] space-y-0.5">
+                <div className="font-semibold flex items-center gap-1.5">
+                  <span>ℹ️</span>
+                  <span>Using local fallback analysis</span>
+                </div>
+                <p className="text-[10px] text-amber-700 dark:text-amber-400 pl-5">
+                  AI service unavailable. Recommendations generated from localized rule heuristics.
+                </p>
               </div>
             )}
 

@@ -5,6 +5,15 @@ import { handleApiError } from '../../utils/errorHandler'
 import { ROLES, hasAnyRole, ROLE_LABELS } from '../../constants/roles'
 import { Button, Spinner, Input } from '../ui'
 
+function getInitials(name) {
+  if (!name) return '?'
+  const parts = name.trim().split(/\s+/)
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+  }
+  return name.slice(0, 2).toUpperCase()
+}
+
 export function TicketWorkLogs({ ticketId, currentUser }) {
   const [workLogs, setWorkLogs] = useState([])
   const [loading, setLoading] = useState(true)
@@ -93,54 +102,55 @@ export function TicketWorkLogs({ ticketId, currentUser }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <div>
-          <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             Technician Work Logs
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-50 text-primary-700">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
               Total: {formatDuration(totalMinutes)}
             </span>
           </h3>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Internal activity and time tracking records for support technicians
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Internal activity and labor duration tracking for support technicians
           </p>
         </div>
         <button
           type="button"
           onClick={fetchWorkLogs}
           disabled={loading}
-          className="text-xs text-slate-500 hover:text-slate-800 disabled:opacity-50"
+          className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors disabled:opacity-50 cursor-pointer"
         >
           Refresh
         </button>
       </div>
 
       {/* Add Work Log Form */}
-      <form onSubmit={handleSubmit} className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-3">
-        <h4 className="text-xs font-semibold text-slate-800 uppercase tracking-wider">
+      <form onSubmit={handleSubmit} className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-3.5 shadow-2xs">
+        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
           Record Work Session
         </h4>
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
           <div className="sm:col-span-1">
             <Input
-              label="Time Spent (mins)"
+              label="Duration (mins)"
               type="number"
               min="1"
               step="1"
               value={timeSpentMinutes}
               onChange={(e) => setTimeSpentMinutes(e.target.value)}
-              placeholder="e.g. 30"
+              placeholder="e.g. 45"
               disabled={submitting}
               required
             />
           </div>
           <div className="sm:col-span-3">
             <Input
-              label="Description of Work Performed"
+              label="Work Performed & Diagnostics"
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Diagnostics, patch deployment, hardware replacement, etc."
+              placeholder="Investigated gateway auth failure, rotated client certificates..."
               disabled={submitting}
               required
             />
@@ -152,10 +162,10 @@ export function TicketWorkLogs({ ticketId, currentUser }) {
             type="submit"
             variant="primary"
             size="sm"
-            loading={submitting}
+            isLoading={submitting}
             disabled={!timeSpentMinutes || !description.trim() || submitting}
           >
-            Log Time
+            Record Work Log
           </Button>
         </div>
       </form>
@@ -166,16 +176,16 @@ export function TicketWorkLogs({ ticketId, currentUser }) {
           <Spinner size="md" />
         </div>
       ) : error ? (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 flex items-center justify-between">
+        <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-300 flex items-center justify-between">
           <span>{error}</span>
           <Button variant="ghost" size="sm" onClick={fetchWorkLogs}>
             Retry
           </Button>
         </div>
       ) : workLogs.length === 0 ? (
-        <div className="text-center py-8 border border-dashed border-slate-200 rounded-lg">
+        <div className="text-center py-8 border border-dashed border-slate-200 dark:border-slate-800 rounded-lg">
           <svg
-            className="w-10 h-10 text-slate-300 mx-auto mb-2"
+            className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -187,8 +197,8 @@ export function TicketWorkLogs({ ticketId, currentUser }) {
               d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <p className="text-sm font-medium text-slate-600">No work logged yet</p>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">No work sessions logged yet</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
             Technicians can record time spent and troubleshooting steps above.
           </p>
         </div>
@@ -198,26 +208,38 @@ export function TicketWorkLogs({ ticketId, currentUser }) {
             const techName = log.technician?.name || 'Staff'
             const techRole = log.technician?.role
             const roleLabel = ROLE_LABELS[techRole] || techRole || 'Technician'
+            const initials = getInitials(techName)
 
             return (
               <div
                 key={log._id}
-                className="bg-white border border-slate-200 rounded-lg p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs"
+                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs transition-all hover:border-slate-300 dark:hover:border-slate-700"
               >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-sm text-slate-900">{techName}</span>
-                    <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
-                      {roleLabel}
-                    </span>
-                    <span className="text-xs text-slate-400">
-                      {log.createdAt ? new Date(log.createdAt).toLocaleString() : ''}
-                    </span>
+                <div className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold text-xs select-none shrink-0 mt-0.5">
+                    {initials}
                   </div>
-                  <p className="text-sm text-slate-700 leading-relaxed">{log.description}</p>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold text-sm text-slate-900 dark:text-slate-100">{techName}</span>
+                      <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                        {roleLabel}
+                      </span>
+                      <span className="text-xs font-mono text-slate-400 dark:text-slate-500">
+                        {log.createdAt ? new Date(log.createdAt).toLocaleString(undefined, {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        }) : ''}
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{log.description}</p>
+                  </div>
                 </div>
-                <div className="self-start sm:self-center shrink-0">
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+
+                <div className="self-start sm:self-center shrink-0 pl-10 sm:pl-0">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
                     ⏱ {formatDuration(log.timeSpentMinutes)}
                   </span>
                 </div>

@@ -73,14 +73,14 @@ export function AssignTicketModal({ isOpen, onClose, ticket, onSuccess }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={`Assign Ticket ${ticket?.ticketNumber || ''}`}>
       {error && (
-        <div className="mb-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700">
+        <div className="mb-4 p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300">
           {error}
         </div>
       )}
 
       <form onSubmit={handleAssign} className="space-y-4">
         <div>
-          <p className="text-xs text-slate-500 mb-3">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
             Assigning will transition this ticket to <strong>ASSIGNED</strong> status, notify the technician, and set the first-response SLA timestamp.
           </p>
 
@@ -99,11 +99,11 @@ export function AssignTicketModal({ isOpen, onClose, ticket, onSuccess }) {
           />
         </div>
 
-        <div className="pt-3 flex items-center justify-end gap-2.5 border-t border-slate-100">
+        <div className="pt-3 flex items-center justify-end gap-2.5 border-t border-slate-100 dark:border-slate-800">
           <Button variant="ghost" size="sm" onClick={onClose} disabled={assigning}>
             Cancel
           </Button>
-          <Button type="submit" variant="primary" size="md" isLoading={assigning}>
+          <Button type="submit" variant="primary" size="sm" isLoading={assigning} disabled={!selectedTech}>
             Confirm Assignment
           </Button>
         </div>

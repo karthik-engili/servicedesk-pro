@@ -128,28 +128,30 @@ export function TicketDetailPage() {
       <div className="mb-4 flex items-center justify-between">
         <Link
           to="/tickets"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          Back to Tickets
+          <span>Tickets</span>
+          <span className="text-slate-300 dark:text-slate-600">/</span>
+          <span className="font-mono font-bold text-slate-700 dark:text-slate-300">{ticket.ticketNumber}</span>
         </Link>
       </div>
 
       {/* Ticket Header Banner */}
-      <div className="bg-white rounded-xl border border-slate-200 p-5 mb-6 shadow-2xs">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="space-y-2">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 mb-6 shadow-2xs">
+        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+          <div className="space-y-2.5 flex-1">
             <div className="flex items-center gap-2.5 flex-wrap">
               <button
                 type="button"
                 onClick={handleCopyTicketNumber}
                 title="Click to copy ticket number"
-                className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors flex items-center gap-1 cursor-pointer"
+                className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-primary-50 dark:bg-primary-950/40 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800 hover:bg-primary-100 dark:hover:bg-primary-900/60 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
               >
                 <span>{ticket.ticketNumber}</span>
-                <span className="text-[10px] text-blue-500">
+                <span className="text-[11px] text-primary-500">
                   {copied ? '✓' : '📋'}
                 </span>
               </button>
@@ -157,80 +159,83 @@ export function TicketDetailPage() {
               <TicketStatusBadge status={ticket.status} size="md" />
               <TicketPriorityBadge priority={ticket.priority} size="md" />
 
-              <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                Category: <strong className="text-slate-700">{categoryLabel}</strong>
+              <span className="text-xs font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700">
+                Category: <strong className="text-slate-800 dark:text-slate-200">{categoryLabel}</strong>
               </span>
             </div>
 
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 leading-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 leading-tight">
               {ticket.title}
             </h1>
 
-            <div className="flex items-center gap-3 text-xs text-slate-500 flex-wrap">
+            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
               <span>
-                Created by{' '}
-                <strong className="text-slate-700">{ticket.createdBy?.name || 'Requester'}</strong>{' '}
-                on {formatDate(ticket.createdAt)}
+                Opened by <strong className="font-medium text-slate-700 dark:text-slate-300">{ticket.createdBy?.name || 'Requester'}</strong>
               </span>
+              <span>•</span>
+              <span className="font-mono">{formatDate(ticket.createdAt)}</span>
               {ticket.updatedAt && ticket.updatedAt !== ticket.createdAt && (
                 <>
                   <span>•</span>
-                  <span>Updated {formatDate(ticket.updatedAt)}</span>
+                  <span>Updated <span className="font-mono">{formatDate(ticket.updatedAt)}</span></span>
                 </>
               )}
             </div>
           </div>
 
-          {/* Compact SLA Callout in Header */}
+          {/* Contextual Action Bar right in Header */}
           <div className="self-start lg:self-center shrink-0">
-            <SlaIndicator ticket={ticket} compact={false} />
+            <TicketActionBar
+              ticket={ticket}
+              onTicketUpdated={handleTicketUpdated}
+            />
           </div>
         </div>
       </div>
 
-      {/* Main Two-Column Layout */}
+      {/* Main Two-Column Enterprise Workspace */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Details, Asset, Resolution, and Activity Tabs */}
+        {/* Left Column (2 cols): Description, Affected Asset, Resolution, and Activity Workspace */}
         <div className="lg:col-span-2 space-y-6">
           {/* Ticket Description */}
-          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs">
-            <h2 className="text-sm font-semibold text-slate-900 border-b border-slate-100 pb-3 mb-4">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-2xs">
+            <h2 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-3 mb-4">
               Description & Details
             </h2>
-            <div className="text-sm text-slate-800 whitespace-pre-wrap leading-relaxed">
+            <div className="text-sm text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed">
               {ticket.description}
             </div>
           </div>
 
           {/* Linked Asset Information (if attached) */}
           {ticket.asset && (
-            <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs">
-              <h3 className="text-sm font-semibold text-slate-900 border-b border-slate-100 pb-3 mb-3 flex items-center gap-2">
-                <span>💻</span> Linked Hardware / Asset
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-2xs">
+              <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-3 mb-3 flex items-center gap-2">
+                <span>💻</span> Affected Hardware Asset
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div>
-                  <span className="text-slate-400 block mb-0.5">Asset Tag</span>
-                  <span className="font-mono font-semibold text-slate-800">
+                  <span className="text-slate-400 dark:text-slate-500 block mb-0.5">Asset Tag</span>
+                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100 text-sm">
                     {ticket.asset.assetTag || 'N/A'}
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block mb-0.5">Device Name</span>
-                  <span className="font-medium text-slate-800">
+                  <span className="text-slate-400 dark:text-slate-500 block mb-0.5">Device Name</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
                     {ticket.asset.name || 'Unnamed Asset'}
                   </span>
                 </div>
                 {ticket.asset.model && (
                   <div>
-                    <span className="text-slate-400 block mb-0.5">Model</span>
-                    <span className="font-medium text-slate-700">{ticket.asset.model}</span>
+                    <span className="text-slate-400 dark:text-slate-500 block mb-0.5">Model</span>
+                    <span className="font-medium text-slate-700 dark:text-slate-300">{ticket.asset.model}</span>
                   </div>
                 )}
                 {ticket.asset.serialNumber && (
                   <div>
-                    <span className="text-slate-400 block mb-0.5">Serial Number</span>
-                    <span className="font-mono text-slate-700">{ticket.asset.serialNumber}</span>
+                    <span className="text-slate-400 dark:text-slate-500 block mb-0.5">Serial Number</span>
+                    <span className="font-mono text-slate-700 dark:text-slate-300">{ticket.asset.serialNumber}</span>
                   </div>
                 )}
               </div>
@@ -239,20 +244,20 @@ export function TicketDetailPage() {
 
           {/* Resolution Details Card (if resolved or closed) */}
           {(ticket.status === 'RESOLVED' || ticket.status === 'CLOSED') && ticket.resolutionNotes && (
-            <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-5 shadow-2xs">
+            <div className="bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/80 rounded-xl p-5 shadow-2xs">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-emerald-700 font-bold text-sm">✅ Resolution Summary</span>
+                <span className="text-emerald-800 dark:text-emerald-300 font-bold text-sm">✅ Resolution Summary</span>
                 {ticket.resolvedAt && (
-                  <span className="text-xs text-emerald-600">
+                  <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400">
                     • Resolved on {formatDate(ticket.resolvedAt)}
                   </span>
                 )}
               </div>
-              <p className="text-sm text-emerald-950 whitespace-pre-wrap leading-relaxed">
+              <p className="text-sm text-emerald-950 dark:text-emerald-100 whitespace-pre-wrap leading-relaxed">
                 {ticket.resolutionNotes}
               </p>
               {ticket.resolvedBy && (
-                <div className="mt-3 text-xs text-emerald-800 font-medium">
+                <div className="mt-3 text-xs text-emerald-800 dark:text-emerald-300 font-medium">
                   Resolved by: {ticket.resolvedBy.name || 'Support Engineer'}
                 </div>
               )}
@@ -260,18 +265,18 @@ export function TicketDetailPage() {
           )}
 
           {/* Activity Section Tabs */}
-          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs">
-            <div className="flex items-center gap-2 border-b border-slate-200 pb-3 mb-6">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-2xs">
+            <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3 mb-6">
               <button
                 type="button"
                 onClick={() => setActiveTab('comments')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
                   activeTab === 'comments'
-                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    ? 'bg-primary-50 dark:bg-primary-950/50 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
-                💬 Comments
+                💬 Comments & Notes
               </button>
 
               {/* Work logs only accessible to support staff */}
@@ -281,8 +286,8 @@ export function TicketDetailPage() {
                   onClick={() => setActiveTab('worklogs')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
                     activeTab === 'worklogs'
-                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                      ? 'bg-primary-50 dark:bg-primary-950/50 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   ⏱ Work Logs
@@ -294,8 +299,8 @@ export function TicketDetailPage() {
                 onClick={() => setActiveTab('audit')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
                   activeTab === 'audit'
-                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    ? 'bg-primary-50 dark:bg-primary-950/50 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
                 📋 Audit Timeline
@@ -317,18 +322,10 @@ export function TicketDetailPage() {
           </div>
         </div>
 
-        {/* Right Column: Actions Bar, SLA Card, Requester, Assignee */}
+        {/* Right Column (1 col): SLA, Copilot, Metadata Details, Knowledge */}
         <div className="space-y-6">
-          {/* Lifecycle Action Bar */}
-          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs">
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
-              Lifecycle Actions
-            </h3>
-            <TicketActionBar
-              ticket={ticket}
-              onTicketUpdated={handleTicketUpdated}
-            />
-          </div>
+          {/* SLA Tracking Panel */}
+          <SlaIndicator ticket={ticket} compact={false} />
 
           {/* AI Ticket Intelligence Copilot */}
           <AiTicketCopilot
@@ -336,100 +333,86 @@ export function TicketDetailPage() {
             onTicketUpdated={handleTicketUpdated}
           />
 
-          {/* SLA Tracking Card */}
-          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs space-y-4">
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2">
-              SLA Compliance
+          {/* Ticket Metadata Details Panel */}
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-2xs space-y-4">
+            <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-2">
+              Ticket Details
             </h3>
 
-            <div className="space-y-3">
+            <div className="space-y-3.5 text-xs">
               <div>
-                <span className="text-[11px] text-slate-400 block mb-1">Current Status</span>
-                <SlaIndicator ticket={ticket} compact={false} />
-              </div>
-
-              <div className="border-t border-slate-100 pt-3 space-y-2 text-xs">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Response Due:</span>
-                  <span className="font-medium text-slate-800">
-                    {ticket.responseDueAt ? formatDate(ticket.responseDueAt) : 'N/A'}
-                  </span>
-                </div>
-                {ticket.firstResponseAt && (
-                  <div className="flex justify-between items-center text-emerald-700">
-                    <span>First Responded:</span>
-                    <span className="font-medium">{formatDate(ticket.firstResponseAt)}</span>
-                  </div>
-                )}
-
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Resolution Due:</span>
-                  <span className="font-medium text-slate-800">
-                    {ticket.resolutionDueAt ? formatDate(ticket.resolutionDueAt) : 'N/A'}
-                  </span>
-                </div>
-                {ticket.resolvedAt && (
-                  <div className="flex justify-between items-center text-emerald-700">
-                    <span>Resolved At:</span>
-                    <span className="font-medium">{formatDate(ticket.resolvedAt)}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Assignment Information */}
-          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs space-y-3">
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2">
-              Assignment
-            </h3>
-
-            {ticket.assignedTo ? (
-              <div className="space-y-1 text-xs">
-                <div className="font-semibold text-slate-900 text-sm">
-                  {ticket.assignedTo.name}
-                </div>
-                <div className="text-slate-500">{ticket.assignedTo.email}</div>
-                {ticket.assignedAt && (
-                  <div className="text-[11px] text-slate-400 pt-1">
-                    Assigned on {formatDate(ticket.assignedAt)}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-xs text-slate-400 italic">
-                No technician currently assigned.
-              </div>
-            )}
-          </div>
-
-          {/* Requester & Department Information */}
-          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs space-y-3">
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2">
-              Requester Details
-            </h3>
-
-            <div className="space-y-2 text-xs">
-              <div>
-                <span className="text-slate-400 block mb-0.5">Requester Name</span>
-                <span className="font-medium text-slate-900">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-0.5">
+                  Requester
+                </span>
+                <span className="font-semibold text-slate-900 dark:text-slate-100 text-sm block">
                   {ticket.createdBy?.name || 'Unknown'}
                 </span>
-              </div>
-              <div>
-                <span className="text-slate-400 block mb-0.5">Email</span>
-                <span className="text-slate-700">
+                <span className="text-slate-500 dark:text-slate-400">
                   {ticket.createdBy?.email || 'N/A'}
                 </span>
               </div>
-              {ticket.department?.name && (
+
+              <div className="border-t border-slate-100 dark:border-slate-800 pt-3">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-0.5">
+                  Assignee
+                </span>
+                {ticket.assignedTo ? (
+                  <div>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100 text-sm block">
+                      {ticket.assignedTo.name}
+                    </span>
+                    <span className="text-slate-500 dark:text-slate-400">
+                      {ticket.assignedTo.email}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-slate-400 italic">Unassigned</span>
+                )}
+              </div>
+
+              <div className="border-t border-slate-100 dark:border-slate-800 pt-3 grid grid-cols-2 gap-3">
                 <div>
-                  <span className="text-slate-400 block mb-0.5">Department</span>
-                  <span className="font-medium text-slate-800">
-                    {ticket.department.name}
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-0.5">
+                    Priority
+                  </span>
+                  <TicketPriorityBadge priority={ticket.priority} size="sm" />
+                </div>
+                <div>
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-0.5">
+                    Status
+                  </span>
+                  <TicketStatusBadge status={ticket.status} size="sm" />
+                </div>
+              </div>
+
+              <div className="border-t border-slate-100 dark:border-slate-800 pt-3 grid grid-cols-2 gap-3">
+                <div>
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-0.5">
+                    Category
+                  </span>
+                  <span className="font-medium text-slate-800 dark:text-slate-200">
+                    {categoryLabel}
                   </span>
                 </div>
-              )}
+                <div>
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-0.5">
+                    Department
+                  </span>
+                  <span className="font-medium text-slate-800 dark:text-slate-200">
+                    {ticket.department?.name || 'General IT'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="border-t border-slate-100 dark:border-slate-800 pt-3">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-0.5">
+                  Timeline
+                </span>
+                <div className="space-y-1 font-mono text-[11px] text-slate-600 dark:text-slate-400">
+                  <div>Created: {formatDate(ticket.createdAt)}</div>
+                  {ticket.updatedAt && <div>Updated: {formatDate(ticket.updatedAt)}</div>}
+                </div>
+              </div>
             </div>
           </div>
 

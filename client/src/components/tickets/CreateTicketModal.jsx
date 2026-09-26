@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
 import ticketService from '../../services/ticketService'
 import api from '../../services/api'
-import { Modal, Button, Input, Select } from '../ui'
+import { Drawer, Button, Input, Select } from '../ui'
 import {
   TICKET_CATEGORIES,
   CATEGORY_LABELS,
@@ -32,7 +32,7 @@ export function CreateTicketModal({ isOpen, onClose, onSuccess }) {
   const [error, setError] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
 
-  // Fetch departments and user assets when modal opens
+  // Fetch departments and user assets when drawer opens
   useEffect(() => {
     if (!isOpen) return
 
@@ -132,22 +132,39 @@ export function CreateTicketModal({ isOpen, onClose, onSuccess }) {
   }
 
   return (
-    <Modal
+    <Drawer
       isOpen={isOpen}
       onClose={handleClose}
       title="Create Support Ticket"
-      maxWidth="max-w-2xl"
+      description="Submit a new incident or service request to the IT service desk."
+      width="max-w-xl"
+      footer={
+        <div className="flex items-center justify-end gap-3 w-full">
+          <Button variant="ghost" size="sm" onClick={handleClose} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="create-ticket-form"
+            variant="primary"
+            size="sm"
+            isLoading={submitting}
+          >
+            Create Ticket
+          </Button>
+        </div>
+      }
     >
       {error && (
-        <div className="mb-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-start gap-2">
+        <div className="mb-5 p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 flex items-start gap-2.5">
           <svg className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span>{error}</span>
+          <span className="leading-relaxed">{error}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form id="create-ticket-form" onSubmit={handleSubmit} className="space-y-4">
         <Input
           label="Subject / Title"
           name="title"
@@ -213,41 +230,32 @@ export function CreateTicketModal({ isOpen, onClose, onSuccess }) {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold tracking-wide text-slate-700 uppercase mb-1.5">
+          <label className="block text-xs font-semibold tracking-wide text-slate-700 dark:text-slate-300 uppercase mb-1.5">
             Detailed Description <span className="text-rose-500">*</span>
           </label>
           <textarea
             name="description"
-            rows="4"
+            rows="5"
             required
             value={formData.description}
             onChange={handleChange}
             placeholder="Describe the symptoms, error messages, and any steps you have already taken..."
-            className={`block w-full rounded-lg text-sm border p-3 text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-1 ${
+            className={`block w-full rounded-lg text-sm border p-3 text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 transition-colors ${
               fieldErrors.description
                 ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500'
-                : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'
+                : 'border-slate-300 dark:border-slate-700 focus:border-primary-500 focus:ring-primary-500'
             }`}
           />
           {fieldErrors.description ? (
-            <p className="mt-1.5 text-xs text-rose-600 font-medium">{fieldErrors.description}</p>
+            <p className="mt-1.5 text-xs text-rose-600 dark:text-rose-400 font-medium">{fieldErrors.description}</p>
           ) : (
-            <p className="mt-1.5 text-xs text-slate-500">
+            <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
               Provide thorough details to assist technical staff in quick diagnosis.
             </p>
           )}
         </div>
-
-        <div className="pt-3 flex items-center justify-end gap-2.5 border-t border-slate-100">
-          <Button variant="ghost" size="sm" onClick={handleClose} disabled={submitting}>
-            Cancel
-          </Button>
-          <Button type="submit" variant="primary" size="md" isLoading={submitting}>
-            Submit Ticket
-          </Button>
-        </div>
       </form>
-    </Modal>
+    </Drawer>
   )
 }
 
