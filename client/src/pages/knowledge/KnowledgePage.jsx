@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import PageContainer from '../../components/layout/PageContainer'
-import { Spinner, Button, EmptyState, ErrorState } from '../../components/ui'
+import { Button, EmptyState, ErrorState, Skeleton } from '../../components/ui'
 import {
   KnowledgeSummaryCards,
   ArticleSearch,
@@ -12,6 +12,33 @@ import {
 import { isStaff } from '../../constants/roles'
 import { useAuth } from '../../contexts/AuthContext'
 import articleService from '../../services/articleService'
+
+function ArticleListSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {[1, 2, 3, 4, 5, 6].map((i) => (
+        <div
+          key={i}
+          className="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl space-y-3 animate-pulse shadow-2xs"
+        >
+          <div className="flex items-center justify-between">
+            <Skeleton width="70px" height="18px" className="rounded" />
+            <Skeleton width="20px" height="20px" className="rounded-md" />
+          </div>
+          <Skeleton width="85%" height="22px" className="rounded" />
+          <div className="space-y-1.5 pt-1">
+            <Skeleton width="100%" height="14px" className="rounded" />
+            <Skeleton width="75%" height="14px" className="rounded" />
+          </div>
+          <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+            <Skeleton width="100px" height="14px" className="rounded" />
+            <Skeleton width="60px" height="14px" className="rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export function KnowledgePage() {
   const navigate = useNavigate()
@@ -164,7 +191,7 @@ export function KnowledgePage() {
     if (!staff) return
     updateUrlParams({
       ...filters,
-      status: statusValue,
+      status: filters.status === statusValue ? '' : statusValue,
       page: 1,
     })
   }
@@ -189,67 +216,68 @@ export function KnowledgePage() {
   return (
     <PageContainer
       title="Knowledge Base & Self-Service"
-      description="Search documentation, standard operating procedures, and troubleshooting guides"
-    >
-      <div className="space-y-6">
-        {/* Top Header Actions & Bookmarks Link */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link
-              to="/knowledge/bookmarks"
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-xs"
-            >
-              <svg className="w-4 h-4 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-              </svg>
-              <span>My Saved Bookmarks</span>
-              {userBookmarks.size > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-primary-100 text-primary-700 dark:bg-primary-950 dark:text-primary-300">
-                  {userBookmarks.size}
-                </span>
-              )}
-            </Link>
-          </div>
+      description="Find answers, troubleshooting procedures, and IT support documentation"
+      actions={
+        <div className="flex items-center gap-2.5">
+          <Link
+            to="/knowledge/bookmarks"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-2xs"
+          >
+            <svg className="w-4 h-4 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+            <span>Saved Articles</span>
+            {userBookmarks.size > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-primary-100 text-primary-700 dark:bg-primary-950 dark:text-primary-300">
+                {userBookmarks.size}
+              </span>
+            )}
+          </Link>
 
           {staff && (
             <Button
               variant="primary"
+              size="md"
               onClick={() => setShowCreateModal(true)}
-              className="shrink-0"
+              className="flex items-center gap-2 shadow-2xs"
             >
-              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
               </svg>
-              Create Article
+              <span>New Article</span>
             </Button>
           )}
         </div>
-
-        {/* Summary Metrics Cards */}
+      }
+    >
+      <div className="space-y-6">
+        {/* Operational KPI Strip */}
         <KnowledgeSummaryCards
           summary={summary}
           user={user}
+          activeStatus={filters.status}
           onFilterStatus={staff ? handleFilterStatus : undefined}
         />
 
-        {/* Search & Hero Input Section */}
-        <div className="p-6 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-4">
+        {/* Primary Search Centerpiece & Filter Area */}
+        <div className="p-6 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-4 shadow-2xs">
           <div>
             <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-              How can we help you today?
+              Find Answers & Troubleshooting
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Type keywords, error messages, or questions to find tested resolutions.
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Type error codes, symptoms, or keywords to discover verified IT solutions.
             </p>
           </div>
 
+          {/* Large prominent search field */}
           <ArticleSearch
             value={filters.search}
             onChange={handleSearchChange}
             onClear={() => handleSearchChange('')}
           />
 
-          {/* Filters Bar */}
+          {/* Categories & Filter Bar */}
           <ArticleFilters
             filters={filters}
             onChange={handleFiltersChange}
@@ -258,12 +286,31 @@ export function KnowledgePage() {
           />
         </div>
 
+        {/* Results Header / Counter */}
+        <div className="flex items-center justify-between px-1 text-xs text-slate-500 dark:text-slate-400 font-medium">
+          <span>
+            {loading ? (
+              'Searching documentation...'
+            ) : filters.search ? (
+              <>
+                Search results: <strong className="text-slate-800 dark:text-slate-200 font-mono">{articles.length}</strong> {articles.length === 1 ? 'article' : 'articles'} matching "{filters.search}"
+              </>
+            ) : (
+              <>
+                Documentation: <strong className="text-slate-800 dark:text-slate-200 font-mono">{pagination.total}</strong> {pagination.total === 1 ? 'article' : 'articles'}
+                {filters.category && (
+                  <span className="text-primary-600 dark:text-primary-400 ml-1">
+                    in {filters.category}
+                  </span>
+                )}
+              </>
+            )}
+          </span>
+        </div>
+
         {/* Article Cards Grid / Results */}
         {loading ? (
-          <div className="py-24 flex flex-col items-center justify-center gap-3">
-            <Spinner size="lg" />
-            <p className="text-xs text-slate-500">Retrieving knowledge articles...</p>
-          </div>
+          <ArticleListSkeleton />
         ) : error ? (
           <ErrorState
             title="Unable to Load Knowledge Base"
@@ -272,39 +319,32 @@ export function KnowledgePage() {
             onAction={fetchArticles}
           />
         ) : articles.length === 0 ? (
-          <EmptyState
-            title="No Knowledge Articles Found"
-            description={
-              filters.search || filters.category || filters.status || filters.department
-                ? 'No published articles match your current search criteria. Try modifying your search or clearing filters.'
-                : 'There are currently no knowledge base articles published in this category.'
-            }
-            actionLabel={
-              filters.search || filters.category || filters.status || filters.department
-                ? 'Clear Filters'
-                : staff
-                ? 'Create First Article'
-                : undefined
-            }
-            onAction={
-              filters.search || filters.category || filters.status || filters.department
-                ? handleResetFilters
-                : staff
-                ? () => setShowCreateModal(true)
-                : undefined
-            }
-          />
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-2xs">
+            <EmptyState
+              title={filters.search ? 'No Articles Found' : 'No Documentation Available'}
+              description={
+                filters.search || filters.category || filters.status || filters.department
+                  ? 'No knowledge articles match your current search query or filter parameters. Try broadening your keywords or resetting filters.'
+                  : 'There are currently no published knowledge base articles available in this department.'
+              }
+              actionLabel={
+                filters.search || filters.category || filters.status || filters.department
+                  ? 'Reset Filters'
+                  : staff
+                  ? 'Create First Article'
+                  : undefined
+              }
+              onAction={
+                filters.search || filters.category || filters.status || filters.department
+                  ? handleResetFilters
+                  : staff
+                  ? () => setShowCreateModal(true)
+                  : undefined
+              }
+            />
+          </div>
         ) : (
           <div className="space-y-6">
-            {/* Header info */}
-            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-              <span>
-                Showing {articles.length} of {pagination.total} {pagination.total === 1 ? 'article' : 'articles'}
-                {filters.search && ` for "${filters.search}"`}
-              </span>
-            </div>
-
-            {/* Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {articles.map((article) => (
                 <ArticleCard
@@ -321,12 +361,13 @@ export function KnowledgePage() {
 
             {/* Pagination Controls */}
             {!filters.search && pagination.pages > 1 && (
-              <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-4">
-                <span className="text-xs text-slate-500">
-                  Page {pagination.page} of {pagination.pages}
-                </span>
+              <div className="bg-white dark:bg-slate-900 px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-between shadow-2xs">
+                <div className="text-xs text-slate-600 dark:text-slate-400">
+                  Showing page <strong className="font-semibold text-slate-900 dark:text-slate-100 font-mono">{pagination.page}</strong> of{' '}
+                  <strong className="font-semibold text-slate-900 dark:text-slate-100 font-mono">{pagination.pages}</strong> ({pagination.total} articles)
+                </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <Button
                     variant="neutral"
                     size="sm"
@@ -335,6 +376,11 @@ export function KnowledgePage() {
                   >
                     Previous
                   </Button>
+
+                  <span className="px-3 py-1 text-xs font-semibold font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md">
+                    {pagination.page}
+                  </span>
+
                   <Button
                     variant="neutral"
                     size="sm"
@@ -350,7 +396,7 @@ export function KnowledgePage() {
         )}
       </div>
 
-      {/* Create Article Modal */}
+      {/* Create Article Drawer */}
       {showCreateModal && (
         <ArticleFormModal
           isOpen={showCreateModal}

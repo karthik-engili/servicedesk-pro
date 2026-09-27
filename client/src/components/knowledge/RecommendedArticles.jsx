@@ -41,27 +41,27 @@ export function RecommendedArticles({ ticketId, className = '' }) {
   if (loading) {
     return (
       <div className={`p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 ${className}`}>
-        <div className="flex items-center gap-2 text-xs text-slate-500">
+        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
           <Spinner size="xs" />
-          <span>Analyzing ticket category and symptoms for solutions...</span>
+          <span>Searching knowledge base for relevant resolutions...</span>
         </div>
       </div>
     )
   }
 
   if (error || recommendations.length === 0) {
-    return null // Keep UI clean if no high-confidence recommendation matches
+    return null // Keep UI clean if no recommendation matches
   }
 
   return (
-    <div className={`p-4 rounded-xl border border-primary-200 dark:border-primary-900/60 bg-primary-50/30 dark:bg-primary-950/20 ${className}`}>
-      <div className="flex items-center justify-between mb-3">
+    <div className={`p-4 rounded-xl border border-primary-200 dark:border-primary-900/60 bg-primary-50/20 dark:bg-primary-950/20 space-y-3 ${className}`}>
+      <div className="flex items-center justify-between border-b border-primary-100 dark:border-primary-900/40 pb-2">
         <div className="flex items-center gap-2">
           <svg className="w-4 h-4 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
           </svg>
           <h4 className="text-xs font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-            Recommended Knowledge Solutions ({recommendations.length})
+            Relevant Knowledge Articles ({recommendations.length})
           </h4>
         </div>
         <span className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -69,7 +69,7 @@ export function RecommendedArticles({ ticketId, className = '' }) {
         </span>
       </div>
 
-      <div className="space-y-2.5">
+      <div className="space-y-2">
         {recommendations.map((rec, idx) => {
           const art = rec.article || {}
           const catConfig = ARTICLE_CATEGORY_CONFIG[art.category] || { shortLabel: art.category || 'General' }
@@ -78,7 +78,7 @@ export function RecommendedArticles({ ticketId, className = '' }) {
           return (
             <div
               key={art._id || idx}
-              className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg hover:border-primary-400 dark:hover:border-primary-600 transition-colors"
+              className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg hover:border-primary-400 dark:hover:border-primary-600 transition-colors shadow-2xs"
             >
               <div className="flex items-start justify-between gap-2">
                 <Link
@@ -95,7 +95,7 @@ export function RecommendedArticles({ ticketId, className = '' }) {
                     {catConfig.shortLabel}
                   </span>
                   <span
-                    className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                    className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${
                       relevanceScore >= 60
                         ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
                         : 'bg-primary-50 text-primary-700 dark:bg-primary-950/60 dark:text-primary-300'
@@ -107,7 +107,7 @@ export function RecommendedArticles({ ticketId, className = '' }) {
               </div>
 
               {art.summary && (
-                <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">
+                <p className="mt-1 text-[11px] text-slate-600 dark:text-slate-400 line-clamp-1">
                   {art.summary}
                 </p>
               )}

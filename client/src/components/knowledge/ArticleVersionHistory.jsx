@@ -51,8 +51,8 @@ export function ArticleVersionHistory({ isOpen, onClose, articleId, articleTitle
       size="lg"
     >
       <div className="space-y-4">
-        <div className="text-xs text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 pb-2">
-          Tracking all historical revisions and author modifications for <span className="font-semibold text-slate-800 dark:text-slate-200">{articleTitle}</span>.
+        <div className="text-xs text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 pb-2.5">
+          Tracking all historical revisions and editorial updates for <span className="font-semibold text-slate-800 dark:text-slate-200">{articleTitle}</span>.
         </div>
 
         {loading ? (
@@ -60,7 +60,7 @@ export function ArticleVersionHistory({ isOpen, onClose, articleId, articleTitle
             <Spinner size="md" />
           </div>
         ) : error ? (
-          <div className="p-4 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-sm">
+          <div className="p-4 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-400 text-xs">
             {error}
           </div>
         ) : versions.length === 0 ? (
@@ -97,10 +97,10 @@ export function ArticleVersionHistory({ isOpen, onClose, articleId, articleTitle
                   >
                     <div className="flex items-center gap-3">
                       <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-bold ${
                           isLatest
-                            ? 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200'
-                            : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                            ? 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200 border border-primary-200 dark:border-primary-800'
+                            : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
                         }`}
                       >
                         v{ver.versionNumber} {isLatest && '(Current)'}
@@ -108,10 +108,10 @@ export function ArticleVersionHistory({ isOpen, onClose, articleId, articleTitle
 
                       <div>
                         <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                          {ver.changeNote || 'Content revision'}
+                          {ver.changeNote || 'Standard content revision'}
                         </div>
                         <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                          By {ver.changedBy?.name || 'Staff User'} ({ROLE_LABELS[ver.changedBy?.role] || ver.changedBy?.role || 'Staff'}) • {formattedDate}
+                          By <strong className="font-medium text-slate-700 dark:text-slate-300">{ver.changedBy?.name || 'Staff User'}</strong> ({ROLE_LABELS[ver.changedBy?.role] || ver.changedBy?.role || 'Staff'}) • {formattedDate}
                         </div>
                       </div>
                     </div>
@@ -132,7 +132,7 @@ export function ArticleVersionHistory({ isOpen, onClose, articleId, articleTitle
                     </button>
                   </div>
 
-                  {/* Expanded Content Preview */}
+                  {/* Expanded Content Snapshot */}
                   {isExpanded && (
                     <div className="px-4 pb-4 pt-2 border-t border-slate-100 dark:border-slate-800/80 text-xs space-y-2">
                       <div className="font-medium text-slate-900 dark:text-slate-100">
@@ -148,11 +148,11 @@ export function ArticleVersionHistory({ isOpen, onClose, articleId, articleTitle
                         <div className="font-medium text-slate-800 dark:text-slate-200 mb-1">
                           Content Snapshot:
                         </div>
-                        <pre className="p-3 bg-slate-50 dark:bg-slate-950 rounded-lg text-slate-700 dark:text-slate-300 font-mono text-[11px] whitespace-pre-wrap max-h-48 overflow-y-auto border border-slate-200 dark:border-slate-800">
+                        <pre className="p-3 bg-slate-50 dark:bg-slate-950 rounded-lg text-slate-700 dark:text-slate-300 font-mono text-[11px] whitespace-pre-wrap max-h-48 overflow-y-auto border border-slate-200 dark:border-slate-800 scrollbar-thin leading-relaxed">
                           {ver.content}
                         </pre>
                       </div>
-                      <div className="flex items-center gap-2 pt-1 text-[11px] text-slate-500">
+                      <div className="flex items-center gap-2 pt-1 text-[11px] text-slate-500 dark:text-slate-400">
                         <span>Category: {ver.category || 'General'}</span>
                         <span>•</span>
                         <span>Visibility: {ver.visibility || 'Public'}</span>
