@@ -3,15 +3,24 @@ import Button from './Button'
 
 export function ErrorState({
   title = 'Failed to load data',
-  message = 'An error occurred while loading this section. Please check your connection and try again.',
+  message,
+  description,
   onRetry,
+  onAction,
+  actionLabel = 'Try Again',
   className = '',
 }) {
+  const displayMessage =
+    message ||
+    description ||
+    'An error occurred while loading this section. Please check your connection and try again.'
+  const handleAction = onRetry || onAction
+
   return (
     <div
-      className={`flex flex-col items-center justify-center p-6 text-center bg-rose-50/50 border border-rose-200 rounded-xl ${className}`}
+      className={`flex flex-col items-center justify-center p-6 text-center bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 rounded-xl ${className}`}
     >
-      <div className="w-10 h-10 flex items-center justify-center rounded-full bg-rose-100 text-rose-600 mb-3">
+      <div className="w-10 h-10 flex items-center justify-center rounded-full bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400 mb-3">
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
@@ -21,12 +30,12 @@ export function ErrorState({
           />
         </svg>
       </div>
-      <h4 className="text-sm font-semibold text-rose-900">{title}</h4>
-      <p className="mt-1 text-xs text-rose-700 max-w-sm">{message}</p>
-      {onRetry && (
+      <h4 className="text-sm font-semibold text-rose-900 dark:text-rose-200">{title}</h4>
+      <p className="mt-1 text-xs text-rose-700 dark:text-rose-300 max-w-sm leading-relaxed">{displayMessage}</p>
+      {handleAction && (
         <div className="mt-4">
-          <Button variant="danger" size="sm" onClick={onRetry}>
-            Retry Request
+          <Button variant="danger" size="sm" onClick={handleAction}>
+            {actionLabel}
           </Button>
         </div>
       )}

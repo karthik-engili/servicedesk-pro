@@ -1,5 +1,6 @@
 import React from 'react'
 import { getWarrantyStatus } from '../../constants/assets'
+import { ShieldIcon } from '../ui/Icons'
 
 export function WarrantyBadge({ warrantyExpiry, showDate = false, size = 'sm', className = '' }) {
   const info = getWarrantyStatus(warrantyExpiry)
@@ -30,7 +31,7 @@ export function WarrantyBadge({ warrantyExpiry, showDate = false, size = 'sm', c
       title={formattedDate ? `Warranty Expiry: ${formattedDate}` : 'No warranty record'}
       className={`inline-flex items-center gap-1 font-mono font-medium rounded-md border shadow-2xs ${sizeClasses} ${variantClasses} ${className}`}
     >
-      <span className="text-[11px]">🛡️</span>
+      <ShieldIcon className="w-3 h-3 shrink-0" />
       <span>{info.label}</span>
       {showDate && formattedDate && (
         <span className="font-normal opacity-80 ml-1">({formattedDate})</span>

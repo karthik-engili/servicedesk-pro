@@ -1,4 +1,13 @@
 import React from 'react'
+import {
+  AssetIcon,
+  CheckIcon,
+  ProfileIcon,
+  ClockIcon,
+  AlertTriangleIcon,
+  ShieldIcon,
+  ArrowRightIcon,
+} from '../ui/Icons'
 
 export function AssetSummaryCards({ summary = {}, activeStatus = '', onStatusClick, onWarrantyClick }) {
   const cards = [
@@ -7,7 +16,7 @@ export function AssetSummaryCards({ summary = {}, activeStatus = '', onStatusCli
       statusValue: '',
       label: 'Total Assets',
       count: summary.totalAssets ?? 0,
-      icon: '💻',
+      icon: <AssetIcon className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />,
       color: 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100',
       accent: 'text-slate-900 dark:text-slate-100',
     },
@@ -16,7 +25,7 @@ export function AssetSummaryCards({ summary = {}, activeStatus = '', onStatusCli
       statusValue: 'AVAILABLE',
       label: 'Available',
       count: summary.available ?? 0,
-      icon: '🟢',
+      icon: <CheckIcon className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />,
       color: 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-emerald-800 dark:text-emerald-300',
       accent: 'text-emerald-600 dark:text-emerald-400',
     },
@@ -25,7 +34,7 @@ export function AssetSummaryCards({ summary = {}, activeStatus = '', onStatusCli
       statusValue: 'ASSIGNED',
       label: 'Assigned',
       count: summary.assigned ?? 0,
-      icon: '👤',
+      icon: <ProfileIcon className="w-3.5 h-3.5 text-primary-600 dark:text-primary-400" />,
       color: 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-blue-800 dark:text-blue-300',
       accent: 'text-primary-600 dark:text-primary-400',
     },
@@ -34,7 +43,7 @@ export function AssetSummaryCards({ summary = {}, activeStatus = '', onStatusCli
       statusValue: 'UNDER_REPAIR',
       label: 'In Repair',
       count: summary.underRepair ?? 0,
-      icon: '🔧',
+      icon: <ClockIcon className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />,
       color: 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-amber-800 dark:text-amber-300',
       accent: 'text-amber-600 dark:text-amber-400',
     },
@@ -43,7 +52,7 @@ export function AssetSummaryCards({ summary = {}, activeStatus = '', onStatusCli
       statusValue: 'LOST',
       label: 'Lost',
       count: summary.lost ?? 0,
-      icon: '⚠️',
+      icon: <AlertTriangleIcon className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />,
       color: 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-rose-800 dark:text-rose-300',
       accent: 'text-rose-600 dark:text-rose-400',
     },
@@ -52,7 +61,7 @@ export function AssetSummaryCards({ summary = {}, activeStatus = '', onStatusCli
       isWarrantyRisk: true,
       label: 'Warranty Risk',
       count: summary.warrantyExpiringSoon ?? 0,
-      icon: '🛡️',
+      icon: <ShieldIcon className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />,
       color: 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-amber-900 dark:text-amber-200',
       accent: 'text-amber-600 dark:text-amber-400',
     },
@@ -88,7 +97,7 @@ export function AssetSummaryCards({ summary = {}, activeStatus = '', onStatusCli
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
                   {card.label}
                 </span>
-                <span className="text-xs opacity-75">{card.icon}</span>
+                <span className="shrink-0">{card.icon}</span>
               </div>
               <div className={`text-xl font-bold font-mono ${card.accent}`}>
                 {Number(card.count).toLocaleString()}
@@ -102,7 +111,7 @@ export function AssetSummaryCards({ summary = {}, activeStatus = '', onStatusCli
       {summary.warrantyExpiringSoon > 0 && (
         <div className="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/70 rounded-xl px-4 py-2.5 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-amber-900 dark:text-amber-200 shadow-2xs">
           <div className="flex items-center gap-2">
-            <span className="text-amber-600 dark:text-amber-400 text-sm">⚠️</span>
+            <AlertTriangleIcon className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
             <span>
               <strong>WARRANTY ATTENTION:</strong> {summary.warrantyExpiringSoon} active asset{summary.warrantyExpiringSoon > 1 ? 's have warranties' : ' has a warranty'} expiring within 30 days.
             </span>
@@ -111,9 +120,10 @@ export function AssetSummaryCards({ summary = {}, activeStatus = '', onStatusCli
             <button
               type="button"
               onClick={onWarrantyClick}
-              className="text-xs font-semibold text-amber-800 dark:text-amber-300 hover:text-amber-950 dark:hover:text-amber-100 hover:underline cursor-pointer self-start sm:self-auto"
+              className="text-xs font-semibold text-amber-800 dark:text-amber-300 hover:text-amber-950 dark:hover:text-amber-100 hover:underline cursor-pointer self-start sm:self-auto inline-flex items-center gap-1"
             >
-              View affected assets &rarr;
+              <span>View affected assets</span>
+              <ArrowRightIcon className="w-3 h-3" />
             </button>
           )}
         </div>

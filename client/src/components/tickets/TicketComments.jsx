@@ -4,6 +4,7 @@ import { useToast } from '../../contexts/ToastContext'
 import { handleApiError } from '../../utils/errorHandler'
 import { ROLES, hasAnyRole, ROLE_LABELS } from '../../constants/roles'
 import { Button, Spinner } from '../ui'
+import { ShieldIcon } from '../ui/Icons'
 
 function getInitials(name) {
   if (!name) return '?'
@@ -188,8 +189,9 @@ export function TicketComments({ ticketId, currentUser }) {
                           {roleLabel}
                         </span>
                         {isInternalNote && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
-                            🔒 Internal Note
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+                            <ShieldIcon className="w-3 h-3 text-amber-700 dark:text-amber-300" />
+                            <span>Internal Note</span>
                           </span>
                         )}
                       </div>
@@ -258,7 +260,8 @@ export function TicketComments({ ticketId, currentUser }) {
                 className="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-amber-600 focus:ring-amber-500"
               />
               <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                <span>🔒 Mark as Internal Note</span>
+                <ShieldIcon className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span>Mark as Internal Note</span>
               </span>
             </label>
           ) : (

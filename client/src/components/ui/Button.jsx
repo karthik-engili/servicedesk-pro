@@ -21,6 +21,8 @@ export function Button({
       'bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 dark:bg-primary-600 dark:hover:bg-primary-500 focus:ring-primary-500/20 border border-transparent shadow-xs',
     secondary:
       'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/80 active:bg-slate-100 dark:active:bg-slate-700 border border-slate-300 dark:border-slate-700 focus:ring-slate-400/20 shadow-xs',
+    neutral:
+      'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/80 active:bg-slate-100 dark:active:bg-slate-700 border border-slate-300 dark:border-slate-700 focus:ring-slate-400/20 shadow-xs',
     outline:
       'bg-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 active:bg-slate-200/50 border border-slate-300 dark:border-slate-700 focus:ring-slate-400/20',
     ghost:

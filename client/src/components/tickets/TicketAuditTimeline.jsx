@@ -3,6 +3,16 @@ import ticketService from '../../services/ticketService'
 import { handleApiError } from '../../utils/errorHandler'
 import { ROLE_LABELS } from '../../constants/roles'
 import { Spinner, Button } from '../ui'
+import {
+  PlusIcon,
+  UserCheckIcon,
+  RefreshIcon,
+  CheckIcon,
+  ShieldIcon,
+  ChatIcon,
+  ClockIcon,
+  EditIcon,
+} from '../ui/Icons'
 
 export function TicketAuditTimeline({ ticketId }) {
   const [logs, setLogs] = useState([])
@@ -46,14 +56,14 @@ export function TicketAuditTimeline({ ticketId }) {
       case 'TICKET_CREATED':
       case 'CREATED':
         return {
-          icon: '●',
+          icon: <PlusIcon className="w-2.5 h-2.5" />,
           bg: 'bg-primary-50 dark:bg-primary-950/50 text-primary-700 dark:text-primary-300 border-primary-200 dark:border-primary-800',
           title: 'Ticket Created',
         }
       case 'ASSIGNED':
       case 'REASSIGNED':
         return {
-          icon: '●',
+          icon: <UserCheckIcon className="w-2.5 h-2.5" />,
           bg: 'bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800',
           title: 'Technician Assigned',
         }
@@ -61,43 +71,43 @@ export function TicketAuditTimeline({ ticketId }) {
       case 'STARTED':
       case 'WORK_STARTED':
         return {
-          icon: '●',
+          icon: <RefreshIcon className="w-2.5 h-2.5" />,
           bg: 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
           title: 'Status Updated',
         }
       case 'RESOLVED':
         return {
-          icon: '✓',
+          icon: <CheckIcon className="w-2.5 h-2.5" />,
           bg: 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
           title: 'Ticket Resolved',
         }
       case 'REOPENED':
         return {
-          icon: '🔄',
+          icon: <RefreshIcon className="w-2.5 h-2.5" />,
           bg: 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
           title: 'Ticket Reopened',
         }
       case 'CLOSED':
         return {
-          icon: '🔒',
+          icon: <ShieldIcon className="w-2.5 h-2.5" />,
           bg: 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700',
           title: 'Ticket Closed',
         }
       case 'COMMENT_ADDED':
         return {
-          icon: '💬',
+          icon: <ChatIcon className="w-2.5 h-2.5" />,
           bg: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
           title: 'Comment Added',
         }
       case 'WORKLOG_ADDED':
         return {
-          icon: '⏱',
+          icon: <ClockIcon className="w-2.5 h-2.5" />,
           bg: 'bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800',
           title: 'Work Logged',
         }
       default:
         return {
-          icon: '●',
+          icon: <EditIcon className="w-2.5 h-2.5" />,
           bg: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
           title: action?.replace(/_/g, ' ') || 'Audit Event',
         }

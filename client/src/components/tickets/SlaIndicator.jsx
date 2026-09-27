@@ -1,5 +1,6 @@
 import React from 'react'
 import Badge from '../ui/Badge'
+import { CheckIcon, AlertOctagonIcon, AlertTriangleIcon } from '../ui/Icons'
 import { SLA_LABELS, SLA_BADGE_VARIANTS } from '../../constants/tickets'
 
 /**
@@ -84,20 +85,20 @@ export function SlaIndicator({ ticket, compact = false, className = '' }) {
   }
 
   // Visual status icons and colors
-  let statusIcon = '●'
+  let statusIcon = <span className="w-1.5 h-1.5 rounded-full bg-primary-500 inline-block" />
   let statusColorClass = 'text-primary-600 dark:text-primary-400'
   let progressBgClass = 'bg-primary-500'
 
   if (slaStatus === 'MET' || isResolvedOrClosed) {
-    statusIcon = '✓'
+    statusIcon = <CheckIcon className="w-3.5 h-3.5 inline-block" />
     statusColorClass = 'text-emerald-600 dark:text-emerald-400'
     progressBgClass = 'bg-emerald-500'
   } else if (slaStatus === 'BREACHED' || isPastDeadline) {
-    statusIcon = '!'
+    statusIcon = <AlertOctagonIcon className="w-3.5 h-3.5 inline-block" />
     statusColorClass = 'text-rose-600 dark:text-rose-400'
     progressBgClass = 'bg-rose-500'
   } else if (slaStatus === 'APPROACHING') {
-    statusIcon = '⚠'
+    statusIcon = <AlertTriangleIcon className="w-3.5 h-3.5 inline-block" />
     statusColorClass = 'text-amber-600 dark:text-amber-400'
     progressBgClass = 'bg-amber-500'
   }
@@ -109,7 +110,7 @@ export function SlaIndicator({ ticket, compact = false, className = '' }) {
   if (compact) {
     return (
       <div className={`inline-flex items-center gap-1.5 font-mono text-xs ${className}`}>
-        <span className={`font-bold ${statusColorClass}`}>{statusIcon}</span>
+        <span className={`flex items-center shrink-0 ${statusColorClass}`}>{statusIcon}</span>
         <span
           className={`font-medium ${
             slaStatus === 'BREACHED'
@@ -182,9 +183,16 @@ export function SlaIndicator({ ticket, compact = false, className = '' }) {
           <div className="flex items-center justify-between">
             <span className="text-slate-500 dark:text-slate-400">Response Target:</span>
             <div className="flex items-center gap-1.5 font-mono">
-              <span className={respondedAt ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-slate-800 dark:text-slate-200 font-medium'}>
-                {respondedAt ? '✓ Met' : formatTargetTime(responseDeadline)}
-              </span>
+              {respondedAt ? (
+                <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <CheckIcon className="w-3 h-3" />
+                  <span>Met</span>
+                </span>
+              ) : (
+                <span className="text-slate-800 dark:text-slate-200 font-medium">
+                  {formatTargetTime(responseDeadline)}
+                </span>
+              )}
             </div>
           </div>
         )}
@@ -193,16 +201,23 @@ export function SlaIndicator({ ticket, compact = false, className = '' }) {
           <div className="flex items-center justify-between">
             <span className="text-slate-500 dark:text-slate-400">Resolution Target:</span>
             <div className="flex items-center gap-1.5 font-mono">
-              <span className={resolvedAt ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-slate-800 dark:text-slate-200 font-medium'}>
-                {resolvedAt ? '✓ Resolved' : formatTargetTime(resolutionDeadline)}
-              </span>
+              {resolvedAt ? (
+                <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <CheckIcon className="w-3 h-3" />
+                  <span>Resolved</span>
+                </span>
+              ) : (
+                <span className="text-slate-800 dark:text-slate-200 font-medium">
+                  {formatTargetTime(resolutionDeadline)}
+                </span>
+              )}
             </div>
           </div>
         )}
 
         {isPastDeadline && !isResolvedOrClosed && (
           <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-[11px] text-rose-700 dark:text-rose-300 font-medium flex items-center gap-1.5 mt-1">
-            <span>🚨</span>
+            <AlertOctagonIcon className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
             <span>Target exceeded. High priority remediation required.</span>
           </div>
         )}

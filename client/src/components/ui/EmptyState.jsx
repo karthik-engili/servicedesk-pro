@@ -1,17 +1,20 @@
 import React from 'react'
+import Button from './Button'
 
 export function EmptyState({
   title = 'No items found',
   description = 'There are no records to display matching your criteria.',
   icon,
   action,
+  actionLabel,
+  onAction,
   className = '',
 }) {
   return (
     <div
-      className={`flex flex-col items-center justify-center p-8 text-center bg-white border border-dashed border-slate-200 rounded-xl ${className}`}
+      className={`flex flex-col items-center justify-center p-8 text-center bg-white dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl ${className}`}
     >
-      <div className="w-12 h-12 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 mb-3.5">
+      <div className="w-12 h-12 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 mb-3.5">
         {icon || (
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -23,9 +26,17 @@ export function EmptyState({
           </svg>
         )}
       </div>
-      <h4 className="text-sm font-semibold text-slate-800">{title}</h4>
-      <p className="mt-1 text-xs text-slate-500 max-w-sm">{description}</p>
-      {action && <div className="mt-4">{action}</div>}
+      <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{title}</h4>
+      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed">{description}</p>
+      {action ? (
+        <div className="mt-4">{action}</div>
+      ) : actionLabel && onAction ? (
+        <div className="mt-4">
+          <Button variant="neutral" size="sm" onClick={onAction}>
+            {actionLabel}
+          </Button>
+        </div>
+      ) : null}
     </div>
   )
 }

@@ -361,33 +361,35 @@ export function KnowledgePage() {
 
             {/* Pagination Controls */}
             {!filters.search && pagination.pages > 1 && (
-              <div className="bg-white dark:bg-slate-900 px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-between shadow-2xs">
-                <div className="text-xs text-slate-600 dark:text-slate-400">
+              <div className="bg-white dark:bg-slate-900 px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
+                <div className="text-xs text-slate-600 dark:text-slate-400 text-center sm:text-left">
                   Showing page <strong className="font-semibold text-slate-900 dark:text-slate-100 font-mono">{pagination.page}</strong> of{' '}
                   <strong className="font-semibold text-slate-900 dark:text-slate-100 font-mono">{pagination.pages}</strong> ({pagination.total} articles)
                 </div>
 
                 <div className="flex items-center gap-1.5">
                   <Button
-                    variant="neutral"
+                    variant="outline"
                     size="sm"
                     disabled={pagination.page <= 1}
                     onClick={() => handlePageChange(pagination.page - 1)}
+                    className="text-xs"
                   >
-                    Previous
+                    ← Previous
                   </Button>
 
                   <span className="px-3 py-1 text-xs font-semibold font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md">
-                    {pagination.page}
+                    {pagination.page} / {pagination.pages || 1}
                   </span>
 
                   <Button
-                    variant="neutral"
+                    variant="outline"
                     size="sm"
                     disabled={pagination.page >= pagination.pages}
                     onClick={() => handlePageChange(pagination.page + 1)}
+                    className="text-xs"
                   >
-                    Next
+                    Next →
                   </Button>
                 </div>
               </div>

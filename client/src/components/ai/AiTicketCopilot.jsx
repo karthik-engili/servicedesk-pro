@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Button, Spinner } from '../ui'
+import { AlertTriangleIcon, AlertOctagonIcon, CheckIcon, CopyIcon } from '../ui/Icons'
 import AiSourceBadge from './AiSourceBadge'
 import AiConfidenceBadge from './AiConfidenceBadge'
 import AiAnalysisHistory from './AiAnalysisHistory'
@@ -128,7 +129,9 @@ export function AiTicketCopilot({ ticket, onTicketUpdated, className = '' }) {
       <div className="p-4 bg-slate-50/70 dark:bg-slate-800/40 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm shadow-xs">
-            🤖
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
           </div>
           <div>
             <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
@@ -175,9 +178,12 @@ export function AiTicketCopilot({ ticket, onTicketUpdated, className = '' }) {
               variant="primary"
               size="sm"
               onClick={handleAnalyze}
-              className="w-full justify-center"
+              className="w-full justify-center gap-1.5"
             >
-              <span className="mr-1.5">⚡</span> Analyze Ticket with AI
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span>Analyze Ticket with AI</span>
             </Button>
             {error && (
               <p className="text-xs text-rose-500 pt-1">
@@ -320,7 +326,7 @@ export function AiTicketCopilot({ ticket, onTicketUpdated, className = '' }) {
                 <ul className="space-y-1 text-[11px] text-slate-700 dark:text-slate-300">
                   {analysis.risks.map((risk, idx) => (
                     <li key={idx} className="flex items-start gap-1.5">
-                      <span className="text-amber-500 shrink-0">⚠</span>
+                      <AlertTriangleIcon className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
                       <span>{risk}</span>
                     </li>
                   ))}
@@ -335,7 +341,7 @@ export function AiTicketCopilot({ ticket, onTicketUpdated, className = '' }) {
               {analysis.escalationRecommended && (
                 <div className="mt-2 p-2.5 rounded-md bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-[11px] space-y-1">
                   <div className="font-bold flex items-center gap-1.5">
-                    <span>🚨</span>
+                    <AlertOctagonIcon className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                     <span>Human Escalation Recommended</span>
                   </div>
                   {analysis.escalationReason && (
@@ -404,7 +410,17 @@ export function AiTicketCopilot({ ticket, onTicketUpdated, className = '' }) {
                     onClick={handleCopySolution}
                     className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline font-medium flex items-center gap-1"
                   >
-                    <span>{copiedDraft ? '✓ Copied' : 'Copy Draft'}</span>
+                    {copiedDraft ? (
+                      <>
+                        <CheckIcon className="w-3.5 h-3.5 text-emerald-500" />
+                        <span>Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <CopyIcon className="w-3.5 h-3.5" />
+                        <span>Copy Draft</span>
+                      </>
+                    )}
                   </button>
                 )}
               </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { CheckIcon, CopyIcon } from '../ui/Icons'
 
 /**
  * Lightweight, dependency-free enterprise Markdown renderer for ServiceDesk Pro.
@@ -47,11 +48,13 @@ function CodeBlock({ code, language }) {
         >
           {copied ? (
             <>
-              <span className="text-emerald-400">✓ Copied</span>
+              <CheckIcon className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="text-emerald-400">Copied</span>
             </>
           ) : (
             <>
-              <span>📋 Copy</span>
+              <CopyIcon className="w-3.5 h-3.5" />
+              <span>Copy</span>
             </>
           )}
         </button>

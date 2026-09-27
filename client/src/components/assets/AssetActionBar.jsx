@@ -3,6 +3,15 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
 import assetService from '../../services/assetService'
 import { Button, Modal } from '../ui'
+import {
+  UserCheckIcon,
+  RefreshIcon,
+  WrenchIcon,
+  CheckIcon,
+  AlertTriangleIcon,
+  SearchIcon,
+  TrashIcon,
+} from '../ui/Icons'
 import AssignAssetModal from './AssignAssetModal'
 import { handleApiError } from '../../utils/errorHandler'
 
@@ -88,7 +97,8 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
             onClick={() => setAssignOpen(true)}
             className="flex items-center gap-1.5"
           >
-            <span>👤</span> Assign Asset
+            <UserCheckIcon className="w-3.5 h-3.5" />
+            <span>Assign Asset</span>
           </Button>
         )}
 
@@ -100,7 +110,8 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
             onClick={() => setUnassignOpen(true)}
             className="flex items-center gap-1.5"
           >
-            <span>↩️</span> Unassign
+            <RefreshIcon className="w-3.5 h-3.5" />
+            <span>Unassign</span>
           </Button>
         )}
 
@@ -112,7 +123,8 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
             onClick={() => setRepairOpen(true)}
             className="flex items-center gap-1.5"
           >
-            <span>🔧</span> Send for Repair
+            <WrenchIcon className="w-3.5 h-3.5" />
+            <span>Send for Repair</span>
           </Button>
         )}
 
@@ -124,7 +136,8 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
             onClick={() => setReturnRepairOpen(true)}
             className="flex items-center gap-1.5"
           >
-            <span>✅</span> Return to Stock
+            <CheckIcon className="w-3.5 h-3.5" />
+            <span>Return to Stock</span>
           </Button>
         )}
 
@@ -136,7 +149,8 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
             onClick={openReplaceModal}
             className="flex items-center gap-1.5 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950/40"
           >
-            <span>🔄</span> Replace Asset
+            <RefreshIcon className="w-3.5 h-3.5" />
+            <span>Replace Asset</span>
           </Button>
         )}
 
@@ -148,7 +162,8 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
             onClick={() => setLostOpen(true)}
             className="flex items-center gap-1.5 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/40"
           >
-            <span>⚠️</span> Report Lost
+            <AlertTriangleIcon className="w-3.5 h-3.5" />
+            <span>Report Lost</span>
           </Button>
         )}
 
@@ -160,7 +175,8 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
             onClick={() => setRecoverOpen(true)}
             className="flex items-center gap-1.5"
           >
-            <span>🔍</span> Recover Asset
+            <SearchIcon className="w-3.5 h-3.5" />
+            <span>Recover Asset</span>
           </Button>
         )}
 
@@ -172,7 +188,8 @@ export function AssetActionBar({ asset, onAssetUpdated, className = '' }) {
             onClick={() => setRetireOpen(true)}
             className="text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40"
           >
-            <span>🗑️</span> Retire
+            <TrashIcon className="w-3.5 h-3.5" />
+            <span>Retire</span>
           </Button>
         )}
 

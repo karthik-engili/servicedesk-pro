@@ -8,6 +8,14 @@ import AssetHistoryTimeline from '../../components/assets/AssetHistoryTimeline'
 import RelatedTickets from '../../components/assets/RelatedTickets'
 import AssetFormModal from '../../components/assets/AssetFormModal'
 import { Button, Spinner, ErrorState } from '../../components/ui'
+import {
+  CheckIcon,
+  CopyIcon,
+  EditIcon,
+  VendorIcon,
+  ClockIcon,
+  TicketIcon,
+} from '../../components/ui/Icons'
 import assetService from '../../services/assetService'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
@@ -141,7 +149,7 @@ export function AssetDetailPage() {
                 className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/80 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
               >
                 <span>{asset.assetTag}</span>
-                <span className="text-[10px] text-blue-500">{copied ? '✓' : '📋'}</span>
+                <span className="text-[10px] text-blue-500">{copied ? <CheckIcon className="w-3.5 h-3.5 text-emerald-500" /> : <CopyIcon className="w-3.5 h-3.5" />}</span>
               </button>
 
               <AssetStatusBadge status={asset.status} size="md" />
@@ -190,7 +198,7 @@ export function AssetDetailPage() {
                 onClick={() => setEditDrawerOpen(true)}
                 className="flex items-center gap-1.5"
               >
-                <span>✏️</span>
+                <EditIcon className="w-4 h-4" />
                 <span>Edit Metadata</span>
               </Button>
             </div>
@@ -277,7 +285,7 @@ export function AssetDetailPage() {
           {asset.vendor && (
             <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-2xs space-y-3">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-3 flex items-center gap-2">
-                <span>🏢</span>
+                <VendorIcon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                 <span>Supplier & Support Contract</span>
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
@@ -305,25 +313,27 @@ export function AssetDetailPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab('history')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 ${
                   activeTab === 'history'
                     ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/80 shadow-2xs'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
                 }`}
               >
-                📜 Custody & Lifecycle History
+                <ClockIcon className="w-3.5 h-3.5" />
+                <span>Custody & Lifecycle History</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('tickets')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 ${
                   activeTab === 'tickets'
                     ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/80 shadow-2xs'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
                 }`}
               >
-                🎫 Linked Tickets
+                <TicketIcon className="w-3.5 h-3.5" />
+                <span>Linked Tickets</span>
               </button>
             </div>
 

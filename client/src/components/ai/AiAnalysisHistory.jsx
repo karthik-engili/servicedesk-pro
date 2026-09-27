@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Modal, Spinner, EmptyState, Button } from '../ui'
+import { AlertOctagonIcon } from '../ui/Icons'
 import aiService from '../../services/aiService'
 import AiSourceBadge from './AiSourceBadge'
 import AiConfidenceBadge from './AiConfidenceBadge'
@@ -163,7 +164,10 @@ export function AiAnalysisHistory({ isOpen, onClose, ticketId, ticketNumber }) {
 
                       {record.escalationRecommended && (
                         <div className="p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200">
-                          <span className="font-bold block mb-0.5">⚠ Escalation Flagged:</span>
+                          <span className="font-bold flex items-center gap-1.5 mb-0.5">
+                            <AlertOctagonIcon className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
+                            <span>Escalation Flagged:</span>
+                          </span>
                           {record.escalationReason || 'High-severity signals detected requiring staff triage.'}
                         </div>
                       )}

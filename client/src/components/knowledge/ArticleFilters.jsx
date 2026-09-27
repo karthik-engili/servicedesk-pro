@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { ARTICLE_CATEGORIES, ARTICLE_CATEGORY_CONFIG, ARTICLE_STATUSES } from '../../constants/articles'
 import { isStaff } from '../../constants/roles'
+import { CloseIcon } from '../ui/Icons'
 import api from '../../services/api'
 
 export function ArticleFilters({
@@ -184,8 +185,9 @@ export function ArticleFilters({
                 type="button"
                 onClick={() => setShowMobileDrawer(false)}
                 className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+                aria-label="Close filters"
               >
-                ✕
+                <CloseIcon className="w-4 h-4" />
               </button>
             </div>
 

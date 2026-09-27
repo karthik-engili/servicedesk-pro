@@ -2,6 +2,17 @@ import React, { useState, useEffect, useCallback } from 'react'
 import assetService from '../../services/assetService'
 import { HISTORY_ACTION_LABELS } from '../../constants/assets'
 import { Spinner, Button } from '../ui'
+import {
+  PlusIcon,
+  UserCheckIcon,
+  RefreshIcon,
+  WrenchIcon,
+  CheckIcon,
+  TrashIcon,
+  AlertTriangleIcon,
+  SearchIcon,
+  EditIcon,
+} from '../ui/Icons'
 import { handleApiError } from '../../utils/errorHandler'
 
 export function AssetHistoryTimeline({ assetId }) {
@@ -40,29 +51,29 @@ export function AssetHistoryTimeline({ assetId }) {
     })
   }
 
-  const getActionIcon = (action) => {
+  const renderActionIcon = (action) => {
     switch (action) {
       case 'CREATED':
-        return '✨'
+        return <PlusIcon className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
       case 'ASSIGNED':
-        return '👤'
+        return <UserCheckIcon className="w-3 h-3 text-blue-600 dark:text-blue-400" />
       case 'UNASSIGNED':
-        return '↩️'
+        return <RefreshIcon className="w-3 h-3 text-amber-600 dark:text-amber-400" />
       case 'SENT_FOR_REPAIR':
-        return '🔧'
+        return <WrenchIcon className="w-3 h-3 text-amber-600 dark:text-amber-400" />
       case 'RETURNED_FROM_REPAIR':
-        return '✅'
+        return <CheckIcon className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
       case 'REPLACED':
-        return '🔄'
+        return <RefreshIcon className="w-3 h-3 text-purple-600 dark:text-purple-400" />
       case 'RETIRED':
-        return '🗑️'
+        return <TrashIcon className="w-3 h-3 text-rose-600 dark:text-rose-400" />
       case 'REPORTED_LOST':
-        return '⚠️'
+        return <AlertTriangleIcon className="w-3 h-3 text-rose-600 dark:text-rose-400" />
       case 'RECOVERED':
-        return '🔍'
+        return <SearchIcon className="w-3 h-3 text-blue-600 dark:text-blue-400" />
       case 'UPDATED':
       default:
-        return '📝'
+        return <EditIcon className="w-3 h-3 text-slate-600 dark:text-slate-400" />
     }
   }
 
@@ -144,14 +155,13 @@ export function AssetHistoryTimeline({ assetId }) {
         <div className="relative pl-6 border-l-2 border-slate-200 dark:border-slate-800 space-y-4 my-2">
           {history.map((record) => {
             const label = HISTORY_ACTION_LABELS[record.action] || record.action
-            const icon = getActionIcon(record.action)
             const performerName = record.performedBy?.name || 'System'
 
             return (
               <div key={record._id} className="relative group">
                 {/* Timeline node */}
                 <span className="absolute -left-[31px] top-1.5 flex h-6 w-6 items-center justify-center rounded-full text-xs shadow-xs border bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700">
-                  {icon}
+                  {renderActionIcon(record.action)}
                 </span>
 
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-3.5 shadow-2xs space-y-1.5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors">

@@ -9,6 +9,14 @@ import TicketComments from '../../components/tickets/TicketComments'
 import TicketWorkLogs from '../../components/tickets/TicketWorkLogs'
 import TicketAuditTimeline from '../../components/tickets/TicketAuditTimeline'
 import { Button, Spinner, ErrorState, Badge } from '../../components/ui'
+import {
+  ChatIcon,
+  ClockIcon,
+  AssetIcon,
+  CheckIcon,
+  CopyIcon,
+  RefreshIcon,
+} from '../../components/ui/Icons'
 import ticketService from '../../services/ticketService'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
@@ -152,7 +160,7 @@ export function TicketDetailPage() {
               >
                 <span>{ticket.ticketNumber}</span>
                 <span className="text-[11px] text-primary-500">
-                  {copied ? '✓' : '📋'}
+                  {copied ? <CheckIcon className="w-3.5 h-3.5 text-emerald-500" /> : <CopyIcon className="w-3.5 h-3.5" />}
                 </span>
               </button>
 
@@ -211,7 +219,8 @@ export function TicketDetailPage() {
           {ticket.asset && (
             <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-2xs">
               <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-3 mb-3 flex items-center gap-2">
-                <span>💻</span> Affected Hardware Asset
+                <AssetIcon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                <span>Affected Hardware Asset</span>
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div>
@@ -246,7 +255,10 @@ export function TicketDetailPage() {
           {(ticket.status === 'RESOLVED' || ticket.status === 'CLOSED') && ticket.resolutionNotes && (
             <div className="bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/80 rounded-xl p-5 shadow-2xs">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-emerald-800 dark:text-emerald-300 font-bold text-sm">✅ Resolution Summary</span>
+                <span className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-300 font-bold text-sm">
+                  <CheckIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>Resolution Summary</span>
+                </span>
                 {ticket.resolvedAt && (
                   <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400">
                     • Resolved on {formatDate(ticket.resolvedAt)}
@@ -270,13 +282,14 @@ export function TicketDetailPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab('comments')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 ${
                   activeTab === 'comments'
                     ? 'bg-primary-50 dark:bg-primary-950/50 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
-                💬 Comments & Notes
+                <ChatIcon className="w-3.5 h-3.5" />
+                <span>Comments & Notes</span>
               </button>
 
               {/* Work logs only accessible to support staff */}
@@ -284,26 +297,28 @@ export function TicketDetailPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('worklogs')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 ${
                     activeTab === 'worklogs'
                       ? 'bg-primary-50 dark:bg-primary-950/50 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
-                  ⏱ Work Logs
+                  <ClockIcon className="w-3.5 h-3.5" />
+                  <span>Work Logs</span>
                 </button>
               )}
 
               <button
                 type="button"
                 onClick={() => setActiveTab('audit')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 ${
                   activeTab === 'audit'
                     ? 'bg-primary-50 dark:bg-primary-950/50 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
-                📋 Audit Timeline
+                <RefreshIcon className="w-3.5 h-3.5" />
+                <span>Audit Timeline</span>
               </button>
             </div>
 

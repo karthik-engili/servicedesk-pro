@@ -224,19 +224,19 @@ export function Register() {
             />
 
             {/* Password Requirements Checklist */}
-            <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-[11px] space-y-1">
-              <div className="flex items-center gap-1.5 text-slate-600">
-                <span className={isPasswordValid ? 'text-emerald-600 font-bold' : 'text-slate-400'}>
+            <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-[11px] space-y-1">
+              <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                <span className={isPasswordValid ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-400 dark:text-slate-500'}>
                   {isPasswordValid ? '✓' : '○'}
                 </span>
                 <span>Minimum 6 characters</span>
               </div>
-              <div className="flex items-center gap-1.5 text-slate-600">
+              <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
                 <span
                   className={
                     formData.confirmPassword && formData.password === formData.confirmPassword
-                      ? 'text-emerald-600 font-bold'
-                      : 'text-slate-400'
+                      ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+                      : 'text-slate-400 dark:text-slate-500'
                   }
                 >
                   {formData.confirmPassword && formData.password === formData.confirmPassword

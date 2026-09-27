@@ -10,6 +10,7 @@ import VendorFormModal from '../../components/assets/VendorFormModal'
 import WarrantyBadge from '../../components/assets/WarrantyBadge'
 import AssetStatusBadge from '../../components/assets/AssetStatusBadge'
 import { Button, Spinner, ErrorState } from '../../components/ui'
+import { AssetIcon, ShieldIcon, VendorIcon, PlusIcon } from '../../components/ui/Icons'
 import assetService from '../../services/assetService'
 import vendorService from '../../services/vendorService'
 import api from '../../services/api'
@@ -154,16 +155,17 @@ export function AssetsPage() {
   }, [fetchExpiringWarranties])
 
   // Fetch Vendors
-  const fetchVendors = useCallback(async () => {
+  const fetchVendors = useCallback(async (page = 1) => {
     if (activeTab !== 'vendors') return
     try {
       setLoadingVendors(true)
       const res = await vendorService.getVendors({
         search: vendorSearch || undefined,
+        page,
         limit: 20,
       })
       setVendors(res.vendors || [])
-      setVendorPagination(res.pagination || { page: 1, limit: 20, total: 0, totalPages: 1 })
+      setVendorPagination(res.pagination || { page, limit: 20, total: 0, totalPages: 1 })
     } catch (err) {
       console.error('Failed to load vendors', err)
     } finally {
@@ -172,8 +174,13 @@ export function AssetsPage() {
   }, [activeTab, vendorSearch])
 
   useEffect(() => {
-    fetchVendors()
+    fetchVendors(1)
   }, [fetchVendors])
+
+  const handleVendorPageChange = (newPage) => {
+    if (newPage < 1 || newPage > vendorPagination.totalPages) return
+    fetchVendors(newPage)
+  }
 
   // Filter updates
   const handleFilterChange = (newFilters) => {
@@ -262,11 +269,11 @@ export function AssetsPage() {
           {activeTab === 'vendors' && isManager && (
             <Button
               variant="primary"
-              size="md"
+              size="sm"
               onClick={handleOpenCreateVendor}
-              className="flex items-center gap-2 shadow-xs"
+              className="flex items-center gap-1.5 shadow-xs"
             >
-              <span>🏢</span>
+              <PlusIcon className="w-4 h-4" />
               <span>Register Vendor</span>
             </Button>
           )}
@@ -274,13 +281,11 @@ export function AssetsPage() {
           {activeTab === 'inventory' && isManager && (
             <Button
               variant="primary"
-              size="md"
+              size="sm"
               onClick={() => setCreateAssetOpen(true)}
-              className="flex items-center gap-2 shadow-xs"
+              className="flex items-center gap-1.5 shadow-xs"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-              </svg>
+              <PlusIcon className="w-4 h-4" />
               <span>Add Asset</span>
             </Button>
           )}
@@ -299,7 +304,7 @@ export function AssetsPage() {
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
             }`}
           >
-            <span>💻</span>
+            <AssetIcon className="w-3.5 h-3.5" />
             <span>Asset Inventory</span>
           </button>
 
@@ -312,7 +317,7 @@ export function AssetsPage() {
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
             }`}
           >
-            <span>🛡️</span>
+            <ShieldIcon className="w-3.5 h-3.5" />
             <span>Expiring Warranties</span>
             {summary.warrantyExpiringSoon > 0 && (
               <span className="w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center font-bold">
@@ -330,7 +335,7 @@ export function AssetsPage() {
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
             }`}
           >
-            <span>🏢</span>
+            <VendorIcon className="w-3.5 h-3.5" />
             <span>Vendors & Suppliers</span>
           </button>
         </div>
@@ -388,8 +393,8 @@ export function AssetsPage() {
 
                 {/* Pagination Controls */}
                 {!loading && assets.length > 0 && pagination.pages > 1 && (
-                  <div className="bg-white dark:bg-slate-900 px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-between shadow-2xs">
-                    <div className="text-xs text-slate-600 dark:text-slate-400">
+                  <div className="bg-white dark:bg-slate-900 px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
+                    <div className="text-xs text-slate-600 dark:text-slate-400 text-center sm:text-left">
                       Showing page <strong className="font-semibold text-slate-900 dark:text-slate-100 font-mono">{pagination.page}</strong> of{' '}
                       <strong className="font-semibold text-slate-900 dark:text-slate-100 font-mono">{pagination.pages}</strong> ({pagination.total} assets)
                     </div>
@@ -400,12 +405,13 @@ export function AssetsPage() {
                         size="sm"
                         onClick={() => handlePageChange(pagination.page - 1)}
                         disabled={pagination.page <= 1}
+                        className="text-xs"
                       >
-                        Previous
+                        ← Previous
                       </Button>
 
                       <span className="px-3 py-1 text-xs font-semibold font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md">
-                        {pagination.page}
+                        {pagination.page} / {pagination.pages || 1}
                       </span>
 
                       <Button
@@ -413,8 +419,9 @@ export function AssetsPage() {
                         size="sm"
                         onClick={() => handlePageChange(pagination.page + 1)}
                         disabled={pagination.page >= pagination.pages}
+                        className="text-xs"
                       >
-                        Next
+                        Next →
                       </Button>
                     </div>
                   </div>
@@ -451,7 +458,7 @@ export function AssetsPage() {
               </div>
             ) : expiringAssets.length === 0 ? (
               <div className="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-200 dark:border-slate-800 text-center space-y-2">
-                <div className="text-2xl">🛡️</div>
+                <ShieldIcon className="w-8 h-8 mx-auto text-emerald-500" />
                 <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">All Warranties Current</h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
                   No registered active hardware has warranty expiration dates within the next 30 days.
@@ -530,6 +537,42 @@ export function AssetsPage() {
               onEdit={handleEditVendor}
               onDelete={handleDeleteVendor}
             />
+
+            {/* Vendor Pagination */}
+            {!loadingVendors && vendors.length > 0 && vendorPagination.totalPages > 1 && (
+              <div className="bg-white dark:bg-slate-900 px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
+                <div className="text-xs text-slate-600 dark:text-slate-400 text-center sm:text-left">
+                  Showing page <strong className="font-semibold text-slate-900 dark:text-slate-100 font-mono">{vendorPagination.page}</strong> of{' '}
+                  <strong className="font-semibold text-slate-900 dark:text-slate-100 font-mono">{vendorPagination.totalPages}</strong> ({vendorPagination.total} vendors)
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleVendorPageChange(vendorPagination.page - 1)}
+                    disabled={vendorPagination.page <= 1}
+                    className="text-xs"
+                  >
+                    ← Previous
+                  </Button>
+
+                  <span className="px-3 py-1 text-xs font-semibold font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md">
+                    {vendorPagination.page} / {vendorPagination.totalPages || 1}
+                  </span>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleVendorPageChange(vendorPagination.page + 1)}
+                    disabled={vendorPagination.page >= vendorPagination.totalPages}
+                    className="text-xs"
+                  >
+                    Next →
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

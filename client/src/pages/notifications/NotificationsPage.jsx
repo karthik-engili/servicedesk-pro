@@ -370,12 +370,13 @@ export function NotificationsPage() {
 
                 <div className="flex items-center gap-1.5">
                   <Button
-                    variant="neutral"
+                    variant="outline"
                     size="sm"
                     disabled={pagination.page <= 1}
                     onClick={() => handlePageChange(pagination.page - 1)}
+                    className="text-xs"
                   >
-                    Previous
+                    ← Previous
                   </Button>
 
                   <div className="flex items-center gap-1 px-1">
@@ -411,12 +412,13 @@ export function NotificationsPage() {
                   </div>
 
                   <Button
-                    variant="neutral"
+                    variant="outline"
                     size="sm"
                     disabled={pagination.page >= pagination.totalPages}
                     onClick={() => handlePageChange(pagination.page + 1)}
+                    className="text-xs"
                   >
-                    Next
+                    Next →
                   </Button>
                 </div>
               </div>
