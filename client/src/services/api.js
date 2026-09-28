@@ -1,6 +1,16 @@
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
+// Ensure API base URL includes /api prefix and normalizes trailing slashes
+const getNormalizedApiUrl = () => {
+  let url = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
+  url = url.trim().replace(/\/+$/, '')
+  if (!url.endsWith('/api')) {
+    url = `${url}/api`
+  }
+  return url
+}
+
+export const API_BASE_URL = getNormalizedApiUrl()
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
