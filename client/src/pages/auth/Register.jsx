@@ -3,8 +3,21 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
 import api from '../../services/api'
-import { Button, Input, Select } from '../../components/ui'
+import { Button, Label, Select } from '../../components/ui'
+import { AuthLayout } from '../../components/layout/AuthLayout'
 import { getErrorMessage, getFieldErrors } from '../../utils/errorHandler'
+import {
+  User,
+  Mail,
+  Lock,
+  Building2,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  ArrowRight,
+  Check,
+} from 'lucide-react'
 
 export function Register() {
   const [formData, setFormData] = useState({
@@ -31,7 +44,23 @@ export function Register() {
       try {
         const res = await api.get('/departments')
         if (isMounted && res.data?.success && res.data?.data?.departments) {
-          setDepartments(res.data.data.departments.filter((d) => d.status === 'active'))
+          const rawDepts = res.data.data.departments || []
+          // Keep active departments, filter out automated test artifacts, deduplicate by name, and sort alphabetically
+          const uniqueMap = new Map()
+          rawDepts
+            .filter((d) => d.status === 'active')
+            .filter((d) => !/\d{10,}/.test(d.name))
+            .forEach((d) => {
+              const cleanName = d.name.trim()
+              if (!uniqueMap.has(cleanName.toLowerCase())) {
+                uniqueMap.set(cleanName.toLowerCase(), d)
+              }
+            })
+
+          const cleaned = Array.from(uniqueMap.values()).sort((a, b) =>
+            a.name.localeCompare(b.name)
+          )
+          setDepartments(cleaned)
         }
       } catch (err) {
         console.error('Failed to load departments:', err)
@@ -49,7 +78,6 @@ export function Register() {
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
-    // Clear specific field error
     if (fieldErrors[name]) {
       setFieldErrors((prev) => ({ ...prev, [name]: '' }))
     }
@@ -59,7 +87,7 @@ export function Register() {
   const doPasswordsMatch =
     formData.password && formData.confirmPassword
       ? formData.password === formData.confirmPassword
-      : true
+      : false
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -110,163 +138,277 @@ export function Register() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8 bg-slate-50">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center items-center gap-2.5 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-base shadow-sm">
-            SD
-          </div>
+    <AuthLayout
+      title="Create your account"
+      subtitle="Set up your account to access the ServiceDesk Pro workspace."
+    >
+      {/* Registration Error Banner */}
+      {error && (
+        <div
+          role="alert"
+          className="mb-5 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-xs text-rose-800 dark:text-rose-200 flex items-start gap-2.5 animate-in fade-in-50 duration-150"
+        >
+          <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+          <span className="leading-snug">{error}</span>
         </div>
-        <h1 className="text-center text-2xl font-bold tracking-tight text-slate-900">
-          Create an Employee Account
-        </h1>
-        <p className="mt-1 text-center text-xs text-slate-500">
-          Register to submit helpdesk tickets and access corporate IT resources
-        </p>
-      </div>
+      )}
 
-      <div className="mt-7 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-7 px-6 shadow-sm border border-slate-200 rounded-xl sm:px-8">
-          {error && (
-            <div className="mb-5 p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-start gap-2">
-              <svg className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>{error}</span>
+      {/* Registration Form */}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Full Name */}
+        <div>
+          <Label htmlFor="register-name" required>
+            Full Name
+          </Label>
+          <div className="relative mt-1.5">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+              <User className="w-4 h-4" />
             </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="Full Name"
+            <input
+              id="register-name"
               name="name"
               type="text"
               required
               autoComplete="name"
               value={formData.name}
               onChange={handleChange}
-              error={fieldErrors.name}
               placeholder="e.g. Alex Johnson"
+              className={`block w-full rounded-lg text-sm transition-all duration-150 pl-9 pr-3.5 py-2.5 bg-white dark:bg-slate-900 border text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 ${
+                fieldErrors.name
+                  ? 'border-rose-400 dark:border-rose-600 focus:border-rose-500 focus:ring-rose-500/20'
+                  : 'border-slate-300 dark:border-slate-700 focus:border-primary-600 dark:focus:border-primary-500 focus:ring-primary-500/20'
+              }`}
             />
+          </div>
+          {fieldErrors.name && (
+            <p className="mt-1.5 text-xs text-rose-600 dark:text-rose-400 font-medium">
+              {fieldErrors.name}
+            </p>
+          )}
+        </div>
 
-            <Input
-              label="Work Email"
+        {/* Work Email */}
+        <div>
+          <Label htmlFor="register-email" required>
+            Work Email
+          </Label>
+          <div className="relative mt-1.5">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+              <Mail className="w-4 h-4" />
+            </div>
+            <input
+              id="register-email"
               name="email"
               type="email"
               required
               autoComplete="email"
               value={formData.email}
               onChange={handleChange}
-              error={fieldErrors.email}
               placeholder="e.g. alex.j@company.local"
+              className={`block w-full rounded-lg text-sm transition-all duration-150 pl-9 pr-3.5 py-2.5 bg-white dark:bg-slate-900 border text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 ${
+                fieldErrors.email
+                  ? 'border-rose-400 dark:border-rose-600 focus:border-rose-500 focus:ring-rose-500/20'
+                  : 'border-slate-300 dark:border-slate-700 focus:border-primary-600 dark:focus:border-primary-500 focus:ring-primary-500/20'
+              }`}
             />
+          </div>
+          {fieldErrors.email && (
+            <p className="mt-1.5 text-xs text-rose-600 dark:text-rose-400 font-medium">
+              {fieldErrors.email}
+            </p>
+          )}
+        </div>
 
-            <Select
-              label="Department (Optional)"
+        {/* Department (Optional) */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <Label htmlFor="register-dept">
+              Department <span className="text-slate-400 font-normal">(Optional)</span>
+            </Label>
+          </div>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+              <Building2 className="w-4 h-4" />
+            </div>
+            <select
+              id="register-dept"
               name="department"
               value={formData.department}
               onChange={handleChange}
-              error={fieldErrors.department}
-              placeholder={loadingDepts ? 'Loading departments...' : 'Select your department'}
               disabled={loadingDepts}
-              options={departments.map((d) => ({ value: d._id, label: d.name }))}
-            />
+              className="block w-full rounded-lg text-sm transition-all duration-150 pl-9 pr-8 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-primary-600 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 cursor-pointer"
+            >
+              <option value="">
+                {loadingDepts ? 'Loading departments...' : 'Select your department'}
+              </option>
+              {departments.map((d) => (
+                <option key={d._id} value={d._id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          {fieldErrors.department && (
+            <p className="mt-1.5 text-xs text-rose-600 dark:text-rose-400 font-medium">
+              {fieldErrors.department}
+            </p>
+          )}
+        </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-semibold tracking-wide text-slate-700 uppercase">
-                  Password <span className="text-rose-500">*</span>
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="text-xs text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? 'Hide' : 'Show'}
-                </button>
-              </div>
-              <div className="relative rounded-lg shadow-2xs">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  required
-                  autoComplete="new-password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Min. 6 characters"
-                  className={`block w-full rounded-lg text-sm border px-3.5 py-2 text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-1 ${
-                    fieldErrors.password
-                      ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500'
-                      : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'
-                  }`}
-                />
-              </div>
-              {fieldErrors.password && (
-                <p className="mt-1.5 text-xs text-rose-600">{fieldErrors.password}</p>
+        {/* Password */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <Label htmlFor="register-password" required>
+              Password
+            </Label>
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className="inline-flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium cursor-pointer transition-colors"
+            >
+              {showPassword ? (
+                <>
+                  <EyeOff className="w-3.5 h-3.5" />
+                  <span>Hide</span>
+                </>
+              ) : (
+                <>
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Show</span>
+                </>
               )}
+            </button>
+          </div>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+              <Lock className="w-4 h-4" />
             </div>
+            <input
+              id="register-password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              required
+              autoComplete="new-password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Min. 6 characters"
+              className={`block w-full rounded-lg text-sm transition-all duration-150 pl-9 pr-10 py-2.5 bg-white dark:bg-slate-900 border text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 ${
+                fieldErrors.password
+                  ? 'border-rose-400 dark:border-rose-600 focus:border-rose-500 focus:ring-rose-500/20'
+                  : 'border-slate-300 dark:border-slate-700 focus:border-primary-600 dark:focus:border-primary-500 focus:ring-primary-500/20'
+              }`}
+            />
+          </div>
+          {fieldErrors.password && (
+            <p className="mt-1.5 text-xs text-rose-600 dark:text-rose-400 font-medium">
+              {fieldErrors.password}
+            </p>
+          )}
+        </div>
 
-            <Input
-              label="Confirm Password"
+        {/* Confirm Password */}
+        <div>
+          <Label htmlFor="register-confirm-password" required>
+            Confirm Password
+          </Label>
+          <div className="relative mt-1.5">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+            <input
+              id="register-confirm-password"
               name="confirmPassword"
               type={showPassword ? 'text' : 'password'}
               required
               autoComplete="new-password"
               value={formData.confirmPassword}
               onChange={handleChange}
-              error={
-                !doPasswordsMatch && formData.confirmPassword
-                  ? 'Passwords do not match'
-                  : fieldErrors.confirmPassword
-              }
-              placeholder="Re-enter password"
+              placeholder="Re-enter your password"
+              className={`block w-full rounded-lg text-sm transition-all duration-150 pl-9 pr-10 py-2.5 bg-white dark:bg-slate-900 border text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 ${
+                formData.confirmPassword && !doPasswordsMatch
+                  ? 'border-rose-400 dark:border-rose-600 focus:border-rose-500 focus:ring-rose-500/20'
+                  : 'border-slate-300 dark:border-slate-700 focus:border-primary-600 dark:focus:border-primary-500 focus:ring-primary-500/20'
+              }`}
             />
+          </div>
+          {formData.confirmPassword && !doPasswordsMatch && (
+            <p className="mt-1.5 text-xs text-rose-600 dark:text-rose-400 font-medium">
+              Passwords do not match
+            </p>
+          )}
+        </div>
 
-            {/* Password Requirements Checklist */}
-            <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-[11px] space-y-1">
-              <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-                <span className={isPasswordValid ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-400 dark:text-slate-500'}>
-                  {isPasswordValid ? '✓' : '○'}
-                </span>
-                <span>Minimum 6 characters</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-                <span
-                  className={
-                    formData.confirmPassword && formData.password === formData.confirmPassword
-                      ? 'text-emerald-600 dark:text-emerald-400 font-bold'
-                      : 'text-slate-400 dark:text-slate-500'
-                  }
-                >
-                  {formData.confirmPassword && formData.password === formData.confirmPassword
-                    ? '✓'
-                    : '○'}
-                </span>
-                <span>Passwords match</span>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              variant="primary"
-              size="md"
-              className="w-full mt-2"
-              isLoading={loading}
+        {/* Password Strength Checklist */}
+        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/60 text-xs space-y-1.5">
+          <div className="flex items-center gap-2">
+            <div
+              className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] transition-colors ${
+                isPasswordValid
+                  ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                  : 'bg-slate-200 dark:bg-slate-700 text-slate-400'
+              }`}
             >
-              Complete Registration
-            </Button>
-          </form>
+              {isPasswordValid ? <Check className="w-3 h-3 stroke-[2.5]" /> : '•'}
+            </div>
+            <span
+              className={
+                isPasswordValid
+                  ? 'text-slate-800 dark:text-slate-200 font-medium'
+                  : 'text-slate-500 dark:text-slate-400'
+              }
+            >
+              Minimum 6 characters
+            </span>
+          </div>
 
-          <div className="mt-6 text-center text-xs text-slate-500">
-            Already have an account?{' '}
-            <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
-              Sign in
-            </Link>
+          <div className="flex items-center gap-2">
+            <div
+              className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] transition-colors ${
+                doPasswordsMatch
+                  ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                  : 'bg-slate-200 dark:bg-slate-700 text-slate-400'
+              }`}
+            >
+              {doPasswordsMatch ? <Check className="w-3 h-3 stroke-[2.5]" /> : '•'}
+            </div>
+            <span
+              className={
+                doPasswordsMatch
+                  ? 'text-slate-800 dark:text-slate-200 font-medium'
+                  : 'text-slate-500 dark:text-slate-400'
+              }
+            >
+              Passwords match
+            </span>
           </div>
         </div>
+
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          className="w-full mt-3 h-11 font-semibold text-sm shadow-xs"
+          isLoading={loading}
+          disabled={loading}
+        >
+          <span>Create account</span>
+          <ArrowRight className="w-4 h-4 ml-1" />
+        </Button>
+      </form>
+
+      {/* Switch to Sign In */}
+      <div className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
+        Already have an account?{' '}
+        <Link
+          to="/login"
+          className="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+        >
+          Sign in
+        </Link>
       </div>
-    </div>
+    </AuthLayout>
   )
 }
 
