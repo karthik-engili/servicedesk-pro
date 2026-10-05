@@ -49,13 +49,15 @@ export function ThemeProvider({ children }) {
 
   const isDark = resolvedTheme === 'dark'
 
-  // Apply or remove .dark class on html element
+  // Apply or remove .dark class and sync color-scheme on html element
   useEffect(() => {
     const root = document.documentElement
     if (isDark) {
       root.classList.add('dark')
+      root.style.colorScheme = 'dark'
     } else {
       root.classList.remove('dark')
+      root.style.colorScheme = 'light'
     }
     localStorage.setItem(THEME_STORAGE_KEY, theme)
   }, [theme, isDark])

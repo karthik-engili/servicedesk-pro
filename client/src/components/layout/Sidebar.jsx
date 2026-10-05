@@ -162,7 +162,7 @@ export function Sidebar({ isOpen, onClose, isCollapsed = false, onToggleCollapse
       {/* Sidebar Container */}
       <aside
         aria-label="Primary Navigation"
-        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-slate-900 dark:bg-slate-950 border-r border-slate-800 text-slate-300 flex flex-col transition-all duration-200 ease-in-out lg:translate-x-0 lg:static lg:h-screen lg:sticky lg:top-0 shrink-0 ${desktopWidthClass} ${
+        className={`fixed top-0 bottom-0 left-0 z-50 lg:z-30 w-64 bg-slate-900 dark:bg-slate-950 border-r border-slate-800 text-slate-300 flex flex-col transition-all duration-200 ease-in-out h-screen lg:translate-x-0 shrink-0 ${desktopWidthClass} ${
           isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         }`}
       >

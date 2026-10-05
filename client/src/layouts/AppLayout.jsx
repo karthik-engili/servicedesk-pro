@@ -23,7 +23,7 @@ export function AppLayout() {
   }, [])
 
   return (
-    <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
       {/* Enterprise Sidebar Navigation */}
       <Sidebar
         isOpen={sidebarOpen}
@@ -33,12 +33,16 @@ export function AppLayout() {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
+      <div
+        className={`flex flex-col min-w-0 min-h-screen transition-[margin] duration-200 ease-in-out ${
+          isCollapsed ? 'lg:ml-16' : 'lg:ml-60'
+        }`}
+      >
         {/* Sticky Enterprise Command Topbar */}
         <Topbar onMenuClick={() => setSidebarOpen(true)} />
 
         {/* Dynamic Page Views */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden focus:outline-none">
+        <main className="flex-1 overflow-x-hidden focus:outline-none">
           <Outlet />
         </main>
       </div>
