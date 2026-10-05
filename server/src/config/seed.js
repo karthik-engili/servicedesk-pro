@@ -22,6 +22,7 @@ export const seedDatabase = async () => {
       { name: "Information Technology", description: "Internal IT, Infrastructure and Helpdesk" },
       { name: "Human Resources", description: "People, onboarding and workplace benefits" },
       { name: "Facilities & Operations", description: "Office facilities, badges and supplies" },
+      { name: "Finance & Accounting", description: "Corporate accounting, financial planning, billing, and global payroll" },
     ];
 
     const departmentMap = {};
