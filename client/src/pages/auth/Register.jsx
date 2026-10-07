@@ -23,6 +23,7 @@ export function Register() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    role: 'employee',
     department: '',
     password: '',
     confirmPassword: '',
@@ -116,6 +117,7 @@ export function Register() {
         name: formData.name.trim(),
         email: formData.email.trim(),
         password: formData.password,
+        role: formData.role || 'employee',
       }
       if (formData.department) {
         payload.department = formData.department
@@ -217,6 +219,36 @@ export function Register() {
               {fieldErrors.email}
             </p>
           )}
+        </div>
+
+        {/* Workspace Role Selection */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <Label htmlFor="register-role" required>
+              Account Role
+            </Label>
+            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-normal">
+              Select access scope
+            </span>
+          </div>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+            <select
+              id="register-role"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="block w-full rounded-lg text-sm transition-all duration-150 pl-9 pr-8 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-primary-600 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 cursor-pointer"
+            >
+              <option value="employee">Employee (Self-Service, Ticket Creation)</option>
+              <option value="it_manager">IT Manager (Assignment, SLA, Escalation)</option>
+              <option value="asset_manager">Asset Manager (CMDB Hardware, Vendors)</option>
+              <option value="technician">IT Technician (Resolution, Work Logs)</option>
+              <option value="system_admin">System Admin (Full Organization Access)</option>
+            </select>
+          </div>
         </div>
 
         {/* Department (Optional) */}
