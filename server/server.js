@@ -12,6 +12,20 @@ const startServer = async () => {
   try {
     await connectDB();
 
+    // Auto-seed demo accounts and configuration if unseeded (e.g. fresh Render/Atlas deployments)
+    try {
+      const User = (await import("./src/models/User.js")).default;
+      const adminExists = await User.findOne({ email: "admin@servicedesk.local" });
+      if (!adminExists) {
+        console.log("🌱 No admin user found in database. Auto-seeding initial demo data...");
+        const { seedDatabase } = await import("./src/config/seed.js");
+        await seedDatabase(false);
+        console.log("✅ Auto-seed completed successfully!");
+      }
+    } catch (seedErr) {
+      console.error("⚠️ Auto-seed check error:", seedErr.message);
+    }
+
     server = app.listen(PORT, () => {
       console.log(`🚀 ServiceDesk Pro server running on port ${PORT}`);
       console.log(`📍 Environment: ${process.env.NODE_ENV || "development"}`);

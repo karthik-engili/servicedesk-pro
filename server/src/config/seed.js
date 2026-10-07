@@ -12,10 +12,12 @@ import ArticleVersion from "../models/ArticleVersion.js";
 
 const DEMO_PASSWORD = "Password@123";
 
-export const seedDatabase = async () => {
+export const seedDatabase = async (closeConnection = false) => {
   try {
     console.log("🌱 Starting ServiceDesk Pro database seed...");
-    await connectDB();
+    if (mongoose.connection.readyState !== 1) {
+      await connectDB();
+    }
 
     // 1. Seed Departments
     const departmentsData = [
@@ -443,12 +445,15 @@ export const seedDatabase = async () => {
     console.log(" - Employee: employee1@servicedesk.local / Password@123");
   } catch (error) {
     console.error("❌ Seed failed:", error.message);
+    if (closeConnection) throw error;
   } finally {
-    await mongoose.connection.close();
-    process.exit(0);
+    if (closeConnection) {
+      await mongoose.connection.close();
+      process.exit(0);
+    }
   }
 };
 
 if (process.argv[1]?.endsWith("seed.js")) {
-  seedDatabase();
+  seedDatabase(true);
 }
